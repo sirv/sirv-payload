@@ -3,7 +3,7 @@
 import { useField } from '@payloadcms/ui';
 import type { AssetType } from '@sirv/core';
 import { useState } from 'react';
-import type { SirvMediaValue } from '../fields/value.js';
+import { type SirvMediaValue, damAssetToMediaValue, enrichMediaValue } from '../fields/value.js';
 import { SirvDamBrowser } from './SirvDamBrowser.js';
 import { SirvModal } from './SirvModal.js';
 import { mediaTypeLabel, thumbUrl } from './thumb.js';
@@ -107,7 +107,9 @@ export function SirvMediaField(props: SirvFieldProps) {
       <SirvModal open={open} onClose={() => setOpen(false)} title="Pick Sirv media">
         <SirvDamBrowser
           allowedTypes={allowedTypes}
-          onPick={(picked) => setValue(picked)}
+          onPick={async (asset, alias) => {
+            setValue(await enrichMediaValue(damAssetToMediaValue(asset, alias)));
+          }}
           onClose={() => setOpen(false)}
         />
       </SirvModal>

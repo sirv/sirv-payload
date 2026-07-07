@@ -276,6 +276,32 @@ in devtools that no browser response ever contains the secret. The design guaran
 - `allowedTypes` travels via `admin.custom` (client-readable) rather than component `clientProps`
   (not expressible through a bare path-string reference).
 
+## Milestone 4 (remaining fields) - DONE (2026-07-07)
+
+- **Generalized `SirvDamBrowser`** so all three fields share one browser: `onPick(asset,
+  deliveryAlias)` (field decides the mapping) + `closeOnPick` (false for galleries). Reused the
+  headless `@sirv/core` DamBrowser unchanged.
+- **`SirvMediaListField`** (`json` array): gallery grid, multi-pick (modal stays open,
+  `closeOnPick=false`), per-item remove, HTML5 drag-and-drop reorder, `readOnly` aware. Reuses
+  `readAllowedTypes` and the value mapper. `SirvMediaListCell` renders a 4-up thumbnail strip
+  with a `+N` overflow.
+- **`SirvAssetUrlField`** (`text`): stores a delivery URL string, hand-editable, with a Browse
+  button opening the DAM browser. Allows generic files (`file`) plus all media types by default
+  (`ALL_BROWSE_TYPES`), narrowable via `allowedTypes`. On pick, stores
+  `buildUrl({ alias, path })`.
+- Wired all five client components into `./client`; factories from M3 already pointed at these
+  path strings, so `sirvMediaListField` / `sirvAssetUrlField` are now fully functional.
+- **Tests**: 3 factory-config assertions (type, component path strings, allowedTypes, url field
+  has no Cell). Suite 74 passed, 5 live-skipped.
+- Verified green: `pnpm check` exit 0; plugin builds.
+
+**Decisions taken here**
+- Multi-select UX: append-per-pick with the modal held open (`closeOnPick=false`) rather than a
+  checkbox multi-select inside the browser, because the headless `@sirv/core` DamBrowser exposes
+  a single-asset preview/confirm flow, not batch selection. Good enough and reuses the shared
+  browser verbatim; a true batch-select is a possible `@sirv/core` enhancement later.
+- Drag-reorder via native HTML5 DnD (no dnd library) to keep the dependency surface minimal.
+
 ## Outstanding / for live verification by Igor
 
 - Token TTL: docs prose says 20 min (1200s); `openapi` allows `expiresIn` up to 604800. Confirm
