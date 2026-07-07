@@ -6,8 +6,8 @@ import { type SirvMediaValue, damAssetToMediaValue, enrichMediaValue } from '../
 import { SirvBrowserPane } from './SirvBrowserPane.js';
 import { readAllowedTypes } from './SirvMediaField.js';
 import { SirvModal } from './SirvModal.js';
+import { SirvThumb } from './SirvThumb.js';
 import { CloseIcon } from './dam/icons.js';
-import { mediaTypeLabel, thumbUrl } from './thumb.js';
 
 interface SirvListFieldProps {
   path: string;
@@ -51,7 +51,6 @@ export function SirvMediaListField(props: SirvListFieldProps) {
       {items.length > 0 ? (
         <ul className="sirv-gallery">
           {items.map((item, index) => {
-            const thumb = thumbUrl(item, 120);
             return (
               <li
                 key={`${item.sirvPath}-${index}`}
@@ -65,11 +64,7 @@ export function SirvMediaListField(props: SirvListFieldProps) {
                 }}
               >
                 <div className="sirv-gallery__thumb">
-                  {thumb ? (
-                    <img src={thumb} alt={item.alt ?? item.sirvPath} />
-                  ) : (
-                    <span className="sirv-asset-card__badge">{mediaTypeLabel(item)}</span>
-                  )}
+                  <SirvThumb value={item} size={120} />
                 </div>
                 <span className="sirv-gallery__name" title={item.sirvPath}>
                   {item.sirvPath.split('/').pop()}

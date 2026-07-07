@@ -1,7 +1,7 @@
 'use client';
 
 import type { SirvMediaValue } from '../fields/value.js';
-import { mediaTypeLabel, thumbUrl } from './thumb.js';
+import { SirvThumb } from './SirvThumb.js';
 
 /** List-view cell: a small thumbnail strip for a stored `sirvMedia` array. */
 export function SirvMediaListCell(props: { cellData?: SirvMediaValue[] | null }) {
@@ -10,18 +10,15 @@ export function SirvMediaListCell(props: { cellData?: SirvMediaValue[] | null })
   const shown = items.slice(0, 4);
   return (
     <span className="sirv-cell sirv-cell--strip">
-      {shown.map((item, i) => {
-        const thumb = thumbUrl(item, 48);
-        return thumb ? (
-          // biome-ignore lint/suspicious/noArrayIndexKey: preview strip, order is identity
-          <img key={i} className="sirv-cell__thumb" src={thumb} alt={item.alt ?? ''} />
-        ) : (
-          // biome-ignore lint/suspicious/noArrayIndexKey: preview strip, order is identity
-          <span key={i} className="sirv-cell__badge">
-            {mediaTypeLabel(item)}
-          </span>
-        );
-      })}
+      {shown.map((item, i) => (
+        <SirvThumb
+          key={`${item.sirvPath}-${i}`}
+          value={item}
+          size={48}
+          imgClassName="sirv-cell__thumb"
+          badgeClassName="sirv-cell__badge"
+        />
+      ))}
       {items.length > shown.length ? (
         <span className="sirv-cell__more">+{items.length - shown.length}</span>
       ) : null}

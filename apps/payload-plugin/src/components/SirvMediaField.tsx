@@ -6,8 +6,9 @@ import { useState } from 'react';
 import { type SirvMediaValue, damAssetToMediaValue, enrichMediaValue } from '../fields/value.js';
 import { SirvBrowserPane } from './SirvBrowserPane.js';
 import { SirvModal } from './SirvModal.js';
+import { SirvThumb } from './SirvThumb.js';
 import { ReplaceIcon, TrashIcon } from './dam/icons.js';
-import { mediaTypeLabel, thumbUrl } from './thumb.js';
+import { mediaTypeLabel } from './thumb.js';
 
 interface SirvFieldProps {
   path: string;
@@ -36,7 +37,6 @@ export function SirvMediaField(props: SirvFieldProps) {
   const { value, setValue } = useField<SirvMediaValue | null>({ path });
   const [open, setOpen] = useState(false);
 
-  const thumb = value ? thumbUrl(value) : null;
   const showText = value?.mediaType === 'image' || value?.mediaType === 'video';
 
   return (
@@ -46,11 +46,7 @@ export function SirvMediaField(props: SirvFieldProps) {
       {value ? (
         <div className="sirv-asset-card">
           <div className="sirv-asset-card__thumb">
-            {thumb ? (
-              <img src={thumb} alt={value.alt ?? value.sirvPath} />
-            ) : (
-              <span className="sirv-asset-card__badge">{mediaTypeLabel(value)}</span>
-            )}
+            <SirvThumb value={value} />
           </div>
           <div className="sirv-asset-card__meta">
             <code className="sirv-code">{value.sirvPath}</code>
