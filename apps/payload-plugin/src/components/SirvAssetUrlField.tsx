@@ -4,7 +4,7 @@ import { useField } from '@payloadcms/ui';
 import type { BrowseType } from '@sirv/core';
 import { buildUrl } from '@sirv/url-builder';
 import { useState } from 'react';
-import { SirvDamBrowser } from './SirvDamBrowser.js';
+import { SirvBrowserPane } from './SirvBrowserPane.js';
 import { SirvModal } from './SirvModal.js';
 
 interface SirvUrlFieldProps {
@@ -54,12 +54,12 @@ export function SirvAssetUrlField(props: SirvUrlFieldProps) {
       </div>
 
       <SirvModal open={open} onClose={() => setOpen(false)} title="Pick a Sirv asset">
-        <SirvDamBrowser
+        <SirvBrowserPane
           allowedTypes={browseTypes}
           onPick={(asset, alias) => {
             setValue(buildUrl({ alias, path: asset.path }));
+            setOpen(false);
           }}
-          onClose={() => setOpen(false)}
         />
       </SirvModal>
     </div>

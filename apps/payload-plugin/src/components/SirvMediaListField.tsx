@@ -3,7 +3,7 @@
 import { useField } from '@payloadcms/ui';
 import { useState } from 'react';
 import { type SirvMediaValue, damAssetToMediaValue, enrichMediaValue } from '../fields/value.js';
-import { SirvDamBrowser } from './SirvDamBrowser.js';
+import { SirvBrowserPane } from './SirvBrowserPane.js';
 import { readAllowedTypes } from './SirvMediaField.js';
 import { SirvModal } from './SirvModal.js';
 import { mediaTypeLabel, thumbUrl } from './thumb.js';
@@ -98,14 +98,16 @@ export function SirvMediaListField(props: SirvListFieldProps) {
       ) : null}
 
       <SirvModal open={open} onClose={() => setOpen(false)} title="Add Sirv media">
-        <SirvDamBrowser
+        <SirvBrowserPane
           allowedTypes={allowedTypes}
-          closeOnPick={false}
-          onPick={async (asset, alias) => {
-            const picked = await enrichMediaValue(damAssetToMediaValue(asset, alias));
-            setValue([...(value ?? []), picked]);
+          multiple
+          onPickMany={async (assets, alias) => {
+            const mapped = await Promise.all(
+              assets.map((a) => enrichMediaValue(damAssetToMediaValue(a, alias))),
+            );
+            setValue([...(value ?? []), ...mapped]);
+            setOpen(false);
           }}
-          onClose={() => setOpen(false)}
         />
       </SirvModal>
     </div>

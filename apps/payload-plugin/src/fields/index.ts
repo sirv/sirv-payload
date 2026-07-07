@@ -1,4 +1,4 @@
-import type { AssetType } from '@sirv/core';
+import type { AssetType, BrowseType } from '@sirv/core';
 import type { Field } from 'payload';
 
 /** Shared options for the Sirv field factories. */
@@ -9,10 +9,15 @@ export interface SirvFieldOptions {
   required?: boolean;
   /**
    * Restrict which media types the DAM browser offers for this field. Defaults to all five
-   * media types. `sirvAssetUrlField` also accepts `'file'` for generic files (PDF/zip).
+   * media types.
    */
   allowedTypes?: AssetType[];
   admin?: Field['admin'];
+}
+
+/** Options for `sirvAssetUrlField`, which additionally accepts generic files (`'file'`). */
+export interface SirvUrlFieldOptions extends Omit<SirvFieldOptions, 'allowedTypes'> {
+  allowedTypes?: BrowseType[];
 }
 
 const CLIENT = '@sirv/payload-plugin/client';
@@ -67,7 +72,7 @@ export function sirvMediaListField(options: SirvFieldOptions): Field {
  * `sirvAssetUrlField({ name })` -> a Payload `text` field storing a delivery URL string, backed
  * by the DAM picker. Allows generic files (PDF/zip) in addition to media.
  */
-export function sirvAssetUrlField(options: SirvFieldOptions): Field {
+export function sirvAssetUrlField(options: SirvUrlFieldOptions): Field {
   const { name, label, required, allowedTypes, admin } = options;
   return {
     name,

@@ -564,3 +564,166 @@
   font-size: 0.75rem;
   color: var(--theme-elevation-500, #5a6b7b);
 }
+
+/* ============================================================================
+   DAM browser v2 (parity with the other Sirv CMS plugins)
+   ============================================================================ */
+
+/* Two-row toolbar: search on its own row, type-filter chips below. */
+.sirv-dam__toolbar {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.sirv-dam__search {
+  width: 100%;
+}
+
+/* Card grid (folders + assets) */
+.sirv-grid__items {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.sirv-dam-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--theme-elevation-100, #e7ebee);
+  border-radius: 8px;
+  background: var(--theme-elevation-0, #fff);
+  cursor: pointer;
+  text-align: center;
+  font: inherit;
+  color: inherit;
+}
+
+.sirv-dam-card:hover {
+  border-color: var(--theme-elevation-300, #b9c2cc);
+}
+
+.sirv-dam-card--selected {
+  border-color: var(--theme-success-500, #0a7c3b);
+  outline: 2px solid var(--theme-success-500, #0a7c3b);
+  outline-offset: -2px;
+}
+
+.sirv-dam-card__frame {
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--theme-elevation-50, #f2f5f7);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.sirv-dam-card__frame img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Folder glyph color (the SVG fills with currentColor). */
+.sirv-dam-card__folder-icon {
+  color: var(--theme-elevation-400, #5b9bd5);
+  background: transparent;
+}
+
+.sirv-dam-card__name {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sirv-dam-card__badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: var(--theme-elevation-800, #1a1f24);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 10px;
+  padding: 1px 7px;
+  z-index: 1;
+  opacity: 0.85;
+}
+
+.sirv-dam-card__check {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--theme-success-500, #0a7c3b);
+  color: #fff;
+  font-size: 12px;
+  z-index: 1;
+}
+
+.sirv-dam-card__type {
+  font-size: 12px;
+  color: var(--theme-elevation-500, #5a6b7b);
+}
+
+/* Multi-select confirm bar */
+.sirv-multibar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 12px;
+  border-top: 1px solid var(--theme-elevation-100, #e7ebee);
+  background: var(--theme-elevation-0, #fff);
+}
+
+/* Single-asset preview */
+.sirv-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sirv-preview__stage {
+  background: var(--theme-elevation-50, #f2f5f7);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.sirv-preview__stage img,
+.sirv-preview__stage video {
+  max-width: 100%;
+  max-height: 440px;
+}
+
+/* Modal close icon button */
+.sirv-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--style-radius-s, 4px);
+  background: transparent;
+  color: var(--theme-elevation-600, #555);
+  cursor: pointer;
+}
+
+.sirv-modal__close:hover {
+  background: var(--theme-elevation-100, #eee);
+  color: var(--theme-elevation-800, #111);
+}

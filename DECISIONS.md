@@ -454,6 +454,31 @@ Fix attempts and the resolution:
 - Verified: plugin and example resolve the same `@payloadcms/ui` hash; server boots, `/admin`
   200, create route compiles with no destructure/module errors.
 
+## DAM browser v2 - parity with the other Sirv plugins (2026-07-07)
+
+Replaced the thin wrapper over `@sirv/core`'s headless `DamBrowser` with a full browser built on
+the core DATA hooks (`useFolders`/`useSearch`/`useTypeFilter`), ported from the Contentful
+plugin's `SirvDamBrowser`. New/changed:
+- **`SirvDamBrowser`** (pure UI): two-row toolbar (search row, then type-filter chips), breadcrumb
+  with a home icon, folder cards with an SVG folder glyph, per-type thumbnails
+  (image = resize, video = `?thumbnail`, spin = `?image=24`; view/model/file = typed placeholder),
+  single-asset preview-and-confirm with a live sirv.js embed for spin/view/model, and
+  **multi-select** with a confirm bar. `SirvBrowserPane` is the connection-aware wrapper
+  (loading / not-connected / busy) the fields use.
+- **Single vs multi**: single fields (`sirvMediaField`, `sirvAssetUrlField`) select one
+  (preview -> confirm); the gallery (`sirvMediaListField`) uses `multiple` (click several across
+  folders/searches, then "Add N assets"). Removed the old append-per-click list behaviour.
+- **Modal**: the "Close" text is now an X icon button (`sirv-modal__close`); Escape-to-close was
+  already implemented in `SirvModal`.
+- New files: `components/dam/{icons.tsx,sirvjs.ts}`, `components/SirvBrowserPane.tsx`.
+- **CSS collision fixed**: the settings cards and the DAM asset cards both used `.sirv-card`;
+  renamed the DAM cards to `.sirv-dam-card*`.
+- **Example**: `Posts` now exercises every input type - single `hero`/`image`/`video`/`spin`/
+  `view`/`model`, `gallery` + image/video-restricted gallery, and `assetUrl` + files-only
+  `attachment`. Added a `SirvUrlFieldOptions` type so `sirvAssetUrlField` can accept `'file'` in
+  `allowedTypes` (media fields stay `AssetType[]`).
+- Verified live: `/admin` 200, create route 200, no errors; workspace check + example tsc green.
+
 ## Outstanding / for live verification by Igor
 
 - Token TTL: docs prose says 20 min (1200s); `openapi` allows `expiresIn` up to 604800. Confirm

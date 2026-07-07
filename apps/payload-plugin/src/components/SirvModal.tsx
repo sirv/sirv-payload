@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { CloseIcon } from './dam/icons.js';
 
 /**
  * Lightweight fixed-overlay modal. Self-contained (no @faceless-ui/modal dependency, no portal
@@ -42,8 +43,14 @@ export function SirvModal({
       <div className="sirv-modal" role="dialog" aria-modal="true" aria-label={title ?? 'Sirv'}>
         <div className="sirv-modal__header">
           <span className="sirv-modal__title">{title ?? 'Sirv media'}</span>
-          <button type="button" className="sirv-btn" onClick={onClose}>
-            Close
+          <button
+            type="button"
+            className="sirv-modal__close"
+            onClick={onClose}
+            aria-label="Close"
+            title="Close (Esc)"
+          >
+            <CloseIcon />
           </button>
         </div>
         <div className="sirv-modal__body">{children}</div>
