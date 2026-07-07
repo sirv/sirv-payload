@@ -3,6 +3,8 @@ import { RootLayout, handleServerFunctions } from '@payloadcms/next/layouts';
 import type { ServerFunctionClient } from 'payload';
 import type { ReactNode } from 'react';
 import { importMap } from './admin/importMap.js';
+// Payload's admin stylesheet MUST be imported first; custom.scss (Sirv chrome) layers on top.
+import '@payloadcms/next/css';
 import './custom.scss';
 
 type Args = { children: ReactNode };
