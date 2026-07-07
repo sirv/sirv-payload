@@ -7,8 +7,11 @@ import './custom.scss';
 
 type Args = { children: ReactNode };
 
-const serverFunction: ServerFunctionClient = async (args) =>
-  handleServerFunctions({ ...args, config, importMap });
+// biome-ignore lint/complexity/useArrowFunction: the 'use server' directive requires a function body; an arrow drops it.
+const serverFunction: ServerFunctionClient = async function (args) {
+  'use server';
+  return handleServerFunctions({ ...args, config, importMap });
+};
 
 const Layout = ({ children }: Args) => (
   <RootLayout config={config} importMap={importMap} serverFunction={serverFunction}>

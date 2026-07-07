@@ -361,6 +361,34 @@ in devtools that no browser response ever contains the secret. The design guaran
 - Replace the article's placeholder screenshots (`sirv.sirv.com/website/screenshots/payload/*`)
   and the `payload-logo.png` with real uploads.
 
+## Live smoke test of the example (2026-07-07) - example runs end-to-end
+
+Booted `examples/payload` with `pnpm dev` (no Sirv creds) and probed it. Results:
+- `GET /admin` -> **200**; Payload auto-ran `generate:importmap` on startup and resolved all
+  seven Sirv client components (confirms the import-map path-string mechanic works in a real app).
+- `GET /api/sirv/status` -> **401 `{"error":"Unauthorized"}`** (the plugin endpoints are mounted
+  under `/api/sirv/*` and correctly guarded on `req.user`).
+- `GET /` -> **200**; all five media types render via `@sirv/react` - the image emitted a full
+  responsive `srcset` (`w=320 ... w=1600`, `format=optimal`, `loading="lazy"`), video with
+  poster + controls, spin/view/model as `.Sirv` sirv.js containers.
+
+The smoke test caught and fixed **three real integration bugs** (all in the example/glue, not the
+plugin core):
+1. **`.js` specifier resolution.** Next's webpack could not resolve the TS-ESM `.js` import
+   specifiers used by the example and the source-consumed `@sirv/*` packages. Fixed with
+   `resolve.extensionAlias` (`.js -> .ts/.tsx`) in `examples/payload/next.config.mjs`.
+2. **Lost `'use server'` directive.** Biome's `useArrowFunction` autofix had rewritten the
+   Payload `serverFunction` in `(payload)/layout.tsx` into an arrow, silently dropping the
+   `'use server'` directive, so `/admin` 500'd ("Functions cannot be passed to Client
+   Components"). Restored the function-expression form with a `biome-ignore`.
+3. **`@sirv/react` is client-only.** `fromSanityMedia`/`SirvMedia` are Client Components; calling
+   them from the RSC frontend page 500'd. Added `(frontend)/MediaBlock.tsx` (`'use client'`) that
+   converts + renders, with the server page passing the plain stored value across the boundary.
+   Updated the README and help article render examples to show the `'use client'` pattern.
+
+These are the kind of bugs only a live run surfaces; the plugin's server + field code was
+unaffected. `pnpm check` remains exit 0 and the example `tsc` is clean after the fixes.
+
 ## Outstanding / for live verification by Igor
 
 - Token TTL: docs prose says 20 min (1200s); `openapi` allows `expiresIn` up to 604800. Confirm

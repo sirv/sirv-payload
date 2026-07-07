@@ -106,15 +106,24 @@ Storyblok, Contentful and Strapi plugins):
 
 ## Render on the frontend with `@sirv/react`
 
-Because Payload v3 runs inside Next.js, rendering is trivial:
+Because Payload v3 runs inside Next.js, rendering is trivial. `@sirv/react` components (and
+`fromSanityMedia`) are Client Components, so render them from a `'use client'` component and pass
+the stored JSON value across the RSC boundary:
 
 ```tsx
+'use client';
 import { SirvMedia, fromSanityMedia } from '@sirv/react';
 
 export function Hero({ value }) {
   // `value` is the stored sirvMedia object from your Payload document.
   return <SirvMedia value={fromSanityMedia(value)} />;
 }
+```
+
+```tsx
+// A React Server Component loads the document and hands the plain value to <Hero>:
+const post = await payload.findByID({ collection: 'posts', id });
+return <Hero value={post.hero} />;
 ```
 
 `fromSanityMedia` reads the flat `sirvMedia` shape directly, so no conversion layer is needed. See

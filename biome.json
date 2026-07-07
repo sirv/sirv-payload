@@ -15,6 +15,7 @@
       "node_modules",
       "coverage",
       "**/importMap.js",
+      "**/payload-types.ts",
       "**/*.json"
     ]
   },

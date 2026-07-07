@@ -94,8 +94,9 @@ export default buildConfig({
 }</pre>
 <p>The gallery field stores an array of these objects; the URL field stores a plain URL string. This is the same flat shape used by the Sirv plugins for Sanity, Storyblok, Contentful and Strapi.</p>
 <h2 id="rendering-on-your-frontend">Rendering on your frontend <a class="toc-anchor" href="#rendering-on-your-frontend"></a></h2>
-<p>Because Payload v3 runs inside Next.js - the native home of <a href="https://www.npmjs.com/package/@sirv/react" target="_blank" rel="noopener noreferrer">@sirv/react</a> - rendering is trivial. Read the document with Payload's Local API, then pass the stored value straight to <span class="code-inline">@sirv/react</span>:</p>
-<pre class="prettyprint lang-tsx">import { SirvMedia, fromSanityMedia as fromStoredMedia } from '@sirv/react';
+<p>Because Payload v3 runs inside Next.js - the native home of <a href="https://www.npmjs.com/package/@sirv/react" target="_blank" rel="noopener noreferrer">@sirv/react</a> - rendering is trivial. The <span class="code-inline">@sirv/react</span> components are Client Components, so render them from a <span class="code-inline">'use client'</span> component and pass the stored value across the boundary:</p>
+<pre class="prettyprint lang-tsx">'use client';
+import { SirvMedia, fromSanityMedia as fromStoredMedia } from '@sirv/react';
 
 // `post.hero` is the stored sirvMedia object from your Payload document.
 &lt;SirvMedia value={fromStoredMedia(post.hero)} /&gt;

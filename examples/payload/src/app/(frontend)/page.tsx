@@ -1,7 +1,7 @@
 import config from '@payload-config';
-import { SirvMedia } from '@sirv/react';
 import { getPayload } from 'payload';
-import { type StoredMediaValue, fromStoredMedia } from '../../lib/fromStoredMedia.js';
+import type { StoredMediaValue } from '../../lib/fromStoredMedia.js';
+import { MediaBlock } from './MediaBlock.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,18 +61,18 @@ export default async function Home() {
           <h2>From your first post: {post.title}</h2>
           {post.hero ? (
             <figure>
-              <SirvMedia value={fromStoredMedia(post.hero)} />
+              <MediaBlock value={post.hero} />
             </figure>
           ) : null}
           {post.gallery && post.gallery.length > 0 ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
               {post.gallery.map((item, i) => (
                 // biome-ignore lint/suspicious/noArrayIndexKey: sample list
-                <SirvMedia key={i} value={fromStoredMedia(item)} />
+                <MediaBlock key={i} value={item} />
               ))}
             </div>
           ) : null}
-          {post.spin ? <SirvMedia value={fromStoredMedia(post.spin)} /> : null}
+          {post.spin ? <MediaBlock value={post.spin} /> : null}
           {post.assetUrl ? (
             <p>
               Attachment: <a href={post.assetUrl}>{post.assetUrl}</a>
@@ -96,7 +96,7 @@ export default async function Home() {
               <figcaption style={{ fontWeight: 600, marginBottom: '0.5rem' }}>
                 {sample.mediaType}
               </figcaption>
-              <SirvMedia value={fromStoredMedia(sample)} />
+              <MediaBlock value={sample} />
             </figure>
           ))}
         </div>
