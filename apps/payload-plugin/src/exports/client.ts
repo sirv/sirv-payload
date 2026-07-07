@@ -1,0 +1,10 @@
+'use client';
+
+/**
+ * Client-components entry (the `@sirv/payload-plugin/client` subpath). Every component the
+ * plugin references by import-map path string is re-exported here. Keep this file free of any
+ * server-only imports - it is the boundary that `payload generate:importmap` pulls into the
+ * admin browser bundle.
+ */
+export { SirvSettingsView } from '../components/SirvSettingsView.js';
+export { SirvNavLink } from '../components/SirvNavLink.js';

@@ -156,6 +156,85 @@ autoplay?, loop?, muted?, controls?   // video/spin playback flags
 - Seeded this `DECISIONS.md` with the pre-made decisions and the M0 defaults above.
 - No production code written; workspace not scaffolded (that is M1). No credentials touched.
 
+## Milestone 1 (scaffold) - DONE (2026-07-07)
+
+- pnpm workspace root: `package.json` (`@sirv/payload-monorepo`), `pnpm-workspace.yaml`
+  (`packages/*`, `apps/*`, `examples/*`), `tsconfig.base.json` + `tsconfig.json`, `biome.json`,
+  `vitest.config.ts`. Mirrors the Strapi setup (closest architecturally).
+- Vendored `packages/{url-builder,sirv-client,core}` verbatim from `../sanity` (47 files, source +
+  package.json + tsconfig). ONE edit to the vendored source: `@sirv/core` react peer widened from
+  `^18.0.0` to `^18.0.0 || ^19.0.0` (Payload v3 admin runs React 19). No other package changes.
+- Boundary guardrails retargeted from `@strapi/*` to Payload: Biome `noRestrictedImports`
+  (enumerates `payload`, `@payloadcms/ui`, `@payloadcms/next`, db + richtext packages) +
+  `scripts/check-package-boundaries.mjs` (wildcard regex catching bare `payload`, `payload/...`
+  subpaths, and any `@payloadcms/*`) + `tests/package-boundaries.test.ts` (`findPayloadImports`).
+- Toolchain: this env is Node 20.20.2 / pnpm 10.28.2. Root devDeps keep React 18 (mirrors Strapi)
+  so the vendored packages test in the exact environment they were proven in; the React 19
+  requirement is satisfied per-app in M2 (plugin) and M5 (example), where `@payloadcms/*` + Next 15
+  bring React 19. core's widened peer accepts both.
+- `git init` + initial commit (65 files tracked). Remote `github.com/sirv/sirv-payload` NOT pushed:
+  this non-interactive session has no git remote auth. PUSH IS OUTSTANDING for Igor (see below).
+- Verified green: `pnpm check` (boundaries + lint + typecheck + test) exits 0. Tests: 56 passed,
+  5 live-only skipped (the `sirv-client/live.test.ts` set, gated by `SIRV_LIVE=1`).
+
+## Milestone 2 (plugin skeleton + auth) - DONE (2026-07-07)
+
+Built `apps/payload-plugin` (`@sirv/payload-plugin@0.1.0`). Installed `payload@3.85.2` +
+`@payloadcms/ui` as dev/peer deps; the plugin package carries its own React 19 dev deps (pnpm
+isolates them per-package) so it matches the Payload admin host while root packages stay on React
+18. Two-entry export split: `.` (server-safe) and `./client` (`'use client'` bundle), plus
+`./styles.css`.
+
+- **Plugin function** (`src/index.ts`): `sirvPlugin(options) => (config) => config`. Spreads
+  existing globals/endpoints/nav links, wraps `onInit`. Registers the settings admin view at
+  `/admin/sirv` (`admin.components.views.sirvSettings`, path-string Component) and a sidebar link
+  via `afterNavLinks`. `enabled: false` returns the config untouched. Verified against the real
+  `payload@3.85.2` types (`Endpoint`, `GlobalConfig`, `AdminViewConfig`, `CustomComponent`,
+  `PayloadComponent = ... | string`).
+- **`sirv-settings` global** (`src/globals/sirv-settings.ts`): admin-only `access.read/update`;
+  `clientSecret` field has `access.read: () => false` (never leaves the server) + field hooks
+  `beforeChange` (encrypt) / `afterRead` (decrypt). clientId/accountAlias/deliveryAlias texts +
+  `aliases` json cache, all admin-readOnly.
+- **Encryption** (`src/lib/encryption.ts`): AES-256-GCM, key = sha256(`req.payload.secret`),
+  random 96-bit IV, self-describing `sirv-enc:v1:` prefix so decrypt/re-save are idempotent.
+- **Server Sirv helper** (`src/lib/sirv-server.ts`, sirv-client only, never client): `mintBearer`
+  (POST /v2/token), `getCachedBearer` (process-local cache, 60s skew), `clearBearerCache`,
+  `validateCredentials` (GET /v2/account -> alias + `accountAliasOptions`).
+- **Endpoints** (`src/endpoints/*`), all guarded on `req.user`, secret never in any response:
+  `POST /api/sirv/connect` (validate + persist + auto-pick single delivery domain),
+  `POST /api/sirv/token` (mint bearer), `GET /api/sirv/status`, `POST /api/sirv/delivery`
+  (save chosen domain without re-sending the secret - the browser never holds it),
+  `POST /api/sirv/disconnect`.
+- **Client seam** (`src/components/adapters/`): `createSirvAdminApi` (typed fetch wrapper over the
+  plugin endpoints), `createPayloadTokenStore` (bearer cache + skew + coalesced mints, sourced
+  from `POST /api/sirv/token`), `createBrowserSirvClient` (reuses the shared `createSirvClient`
+  by injecting a live bearer through a custom `fetch` and owning the 401-refresh retry - the
+  static token manager cannot refresh, so the placeholder `accessToken` is overwritten per
+  request). This is the "genuinely new" seam; `TokenStorage`/`useSirvAuth` are intentionally NOT
+  used (they would leak the secret into the browser).
+- **Settings view** (`src/components/SirvSettingsView.tsx`, `'use client'`): full connect flow
+  (paste ID+secret -> validate -> auto/pick delivery domain -> disconnect), plus `SirvNavLink`.
+  Chrome via `sirv-*` CSS classes in `src/styles.css` (uses Payload admin CSS variables).
+- **Tests** (25 new assertions): encryption round-trip/tamper/idempotency, token-store
+  cache/refresh/coalesce, server bearer-cache with a stubbed `/v2/token` fetch.
+- Verified green: `pnpm boundaries && lint && typecheck && test` (66 passed, 5 live-skipped) and
+  `pnpm --filter @sirv/payload-plugin build` emits `dist/{index,exports/client,styles.css}` with
+  `'use client'` preserved in the client bundle.
+
+**Decisions taken here**
+- API base defaults to `/api` and admin route to `/admin` (Payload defaults). Custom
+  `routes.api`/`routes.admin` are a documented limitation to wire through `useConfig` later.
+- The settings view is registered as a client-component view (renders standalone at
+  `/admin/sirv`). Wrapping it in `@payloadcms/next`'s `DefaultTemplate` for full nav chrome is a
+  refinement deferred to keep the server/client boundary clean; the nav link + view are
+  functional now.
+- A 5th endpoint (`/sirv/delivery`) was added beyond the spec's connect/token/status because the
+  browser cannot re-send the secret to change only the delivery domain.
+
+**Acceptance still needing live creds (Igor):** connect against a real Sirv account and confirm
+in devtools that no browser response ever contains the secret. The design guarantees it (field
+`read:()=>false` + status/token responses omit it); needs a live confirmation run.
+
 ## Outstanding / for live verification by Igor
 
 - Token TTL: docs prose says 20 min (1200s); `openapi` allows `expiresIn` up to 604800. Confirm
@@ -166,3 +245,7 @@ autoplay?, loop?, muted?, controls?   // video/spin playback flags
 - Exact current stable Payload 3.x at build time and the exact minimum minor per API surface;
   Payload's internal React pin; the `afterNavLinks` (or equivalent) nav-link slot name.
 - Whether npm consumers need `--legacy-peer-deps` for the React 19 peer graph (pnpm recommended).
+- **Git push:** repo is committed locally but not pushed. Igor to create/attach the
+  `github.com/sirv/sirv-payload` remote and push (this session had no remote auth).
+- **npm publish** of `@sirv/payload-plugin` (M6) needs a credentialed `.npmrc` (temporary,
+  gitignored, deleted after) - cannot run in this session.

@@ -1,0 +1,52 @@
+{
+  "name": "@sirv/payload-plugin",
+  "version": "0.1.0",
+  "description": "Add Sirv as a first-class media source inside Payload CMS v3: browse the Sirv DAM, pick images, videos, 360 spins, views and 3D models, and render them with @sirv/react.",
+  "keywords": ["payload", "payload-plugin", "sirv", "dam", "media", "images", "cdn"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sirv/sirv-payload.git",
+    "directory": "apps/payload-plugin"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/exports/client.d.ts",
+      "import": "./dist/exports/client.js",
+      "default": "./dist/exports/client.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json && node scripts/copy-assets.mjs"
+  },
+  "dependencies": {
+    "@sirv/core": "workspace:*",
+    "@sirv/sirv-client": "workspace:*",
+    "@sirv/url-builder": "workspace:*"
+  },
+  "peerDependencies": {
+    "@payloadcms/ui": "^3.37.0",
+    "payload": "^3.37.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@payloadcms/ui": "^3.37.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "payload": "^3.37.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}
