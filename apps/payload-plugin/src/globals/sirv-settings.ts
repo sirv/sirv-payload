@@ -31,6 +31,10 @@ export const sirvSettingsGlobal: GlobalConfig = {
     update: adminOnly,
   },
   admin: {
+    // Hidden from the admin nav: the credentials are managed through the custom Sirv settings
+    // view (/admin/sirv), not by editing the raw global. The global still backs the endpoints
+    // via the Local API (which bypasses access control).
+    hidden: true,
     group: 'Sirv',
     description:
       'Sirv account connection. Manage this through the Sirv settings view; the secret is stored encrypted and never returned to the browser.',

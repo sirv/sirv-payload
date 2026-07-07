@@ -389,6 +389,26 @@ plugin core):
 These are the kind of bugs only a live run surfaces; the plugin's server + field code was
 unaffected. `pnpm check` remains exit 0 and the example `tsc` is clean after the fixes.
 
+## Settings UX refinement (2026-07-07)
+
+Feedback: the raw `sirv-settings` global was visible in the admin nav and rendered by Payload's
+default global edit UI (unstyled fields + an "Edit"/"API" tab), which is not the intended entry
+point. Fixes:
+- **Hid the global from the nav** (`admin.hidden: true` in `globals/sirv-settings.ts`). It still
+  backs the endpoints through the Local API (which bypasses access control). The custom view at
+  `/admin/sirv` is now the sole settings entry.
+- **Redesigned `SirvSettingsView`** to match the other Sirv CMS plugins (the Strapi settings page
+  the user referenced): a titled "Sirv configuration" page with a **Connection** card (Client ID
+  + Client secret, required markers, the "my.sirv.com -> Settings -> API" helper link, Connect
+  button; connected state shows the account + delivery-domain picker + a danger Disconnect) and a
+  **Help & support** card (Documentation / Contact support / Your API keys links). Added the
+  matching `sirv-card`/`sirv-hint`/`sirv-links`/`sirv-btn--danger` CSS.
+
+Note on the "API" tab the user asked about: that is Payload's built-in per-document view toggle
+(Edit vs API) auto-added to every collection/global edit screen; it previews the REST/GraphQL JSON
+for that document. It appeared only because the global was nav-visible. The `clientSecret` was
+already excluded from it (`read:()=>false`); hiding the global removes the tab from view entirely.
+
 ## Outstanding / for live verification by Igor
 
 - Token TTL: docs prose says 20 min (1200s); `openapi` allows `expiresIn` up to 604800. Confirm

@@ -4,11 +4,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { SirvConnectionStatus } from '../types.js';
 import { createSirvAdminApi } from './adapters/api.js';
 
+const API_SETTINGS_URL = 'https://my.sirv.com/#/account/settings/api';
+const DOCS_URL = 'https://sirv.com/help/';
+const SUPPORT_URL = 'https://sirv.com/help/support/';
+
 /**
- * The Sirv settings admin view (mounted at /admin/sirv). Full connect flow: paste REST Client
- * ID + Secret -> validate via the server (GET /v2/account) -> pick the delivery domain
- * (auto-selected when the account has one) -> disconnect. The secret is posted once to the
- * server and never read back; the browser only ever sees the non-secret status.
+ * The Sirv settings admin view (mounted at /admin/sirv). Full connect flow, laid out like the
+ * other Sirv CMS plugins: a "Connection" card (paste REST Client ID + Secret -> validate via the
+ * server -> pick delivery domain -> disconnect) and a "Help & support" card. The secret is posted
+ * once to the server and never read back; the browser only ever sees the non-secret status.
  */
 export function SirvSettingsView() {
   const api = useMemo(() => createSirvAdminApi(), []);
@@ -66,6 +70,7 @@ export function SirvSettingsView() {
     try {
       await api.disconnect();
       setStatus({ connected: false });
+      setClientId('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Disconnect failed');
     } finally {
@@ -76,65 +81,95 @@ export function SirvSettingsView() {
   return (
     <div className="sirv-settings">
       <div className="sirv-settings__header">
-        <h1 className="sirv-settings__title">Sirv</h1>
-        <p className="sirv-settings__subtitle">
-          Connect your Sirv account to browse and pick media from the Sirv DAM.
-        </p>
+        <h1 className="sirv-settings__title">Sirv configuration</h1>
+        <p className="sirv-settings__subtitle">Connect your Sirv account.</p>
       </div>
 
-      {error ? <div className="sirv-alert sirv-alert--error">{error}</div> : null}
+      <section className="sirv-card">
+        <h2 className="sirv-card__title">Connection</h2>
 
-      {!loaded ? (
-        <p className="sirv-muted">Loading...</p>
-      ) : status?.connected ? (
-        <ConnectedPanel
-          status={status}
-          busy={busy}
-          onSelectDelivery={onSelectDelivery}
-          onDisconnect={onDisconnect}
-        />
-      ) : (
-        <form
-          className="sirv-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void onConnect();
-          }}
-        >
-          <label className="sirv-field">
-            <span className="sirv-field__label">REST Client ID</span>
-            <input
-              className="sirv-input"
-              value={clientId}
-              onChange={(e) => setClientId(e.target.value)}
-              autoComplete="off"
-              spellCheck={false}
-            />
-          </label>
-          <label className="sirv-field">
-            <span className="sirv-field__label">REST Client Secret</span>
-            <input
-              className="sirv-input"
-              type="password"
-              value={clientSecret}
-              onChange={(e) => setClientSecret(e.target.value)}
-              autoComplete="off"
-              spellCheck={false}
-            />
-          </label>
-          <p className="sirv-muted">
-            Find these in Sirv under Account &gt; Settings &gt; API (REST API tokens). The secret is
-            stored encrypted on your server and never sent to the browser.
-          </p>
-          <button
-            className="sirv-btn sirv-btn--primary"
-            type="submit"
-            disabled={busy || !clientId.trim() || !clientSecret.trim()}
+        {!loaded ? (
+          <p className="sirv-muted">Checking Sirv connection...</p>
+        ) : status?.connected ? (
+          <ConnectedPanel
+            status={status}
+            busy={busy}
+            error={error}
+            onSelectDelivery={onSelectDelivery}
+            onDisconnect={onDisconnect}
+          />
+        ) : (
+          <form
+            className="sirv-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void onConnect();
+            }}
           >
-            {busy ? 'Connecting...' : 'Connect'}
-          </button>
-        </form>
-      )}
+            <label className="sirv-field">
+              <span className="sirv-field__label">
+                Client ID <span className="sirv-required">*</span>
+              </span>
+              <input
+                className="sirv-input"
+                value={clientId}
+                onChange={(e) => setClientId(e.target.value)}
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <span className="sirv-hint">
+                Create or find your REST API keys at{' '}
+                <a href={API_SETTINGS_URL} target="_blank" rel="noopener noreferrer">
+                  my.sirv.com &rarr; Settings &rarr; API
+                </a>
+              </span>
+            </label>
+
+            <label className="sirv-field">
+              <span className="sirv-field__label">
+                Client secret <span className="sirv-required">*</span>
+              </span>
+              <input
+                className="sirv-input"
+                type="password"
+                value={clientSecret}
+                onChange={(e) => setClientSecret(e.target.value)}
+                autoComplete="off"
+                spellCheck={false}
+              />
+            </label>
+
+            {error ? <div className="sirv-alert sirv-alert--error">{error}</div> : null}
+
+            <button
+              className="sirv-btn sirv-btn--primary"
+              type="submit"
+              disabled={busy || !clientId.trim() || !clientSecret.trim()}
+            >
+              {busy ? 'Connecting...' : 'Connect'}
+            </button>
+          </form>
+        )}
+      </section>
+
+      <section className="sirv-card">
+        <h2 className="sirv-card__title">Help &amp; support</h2>
+        <p className="sirv-muted">
+          We'd love to hear from you. Send us your questions and feedback - this plugin is improved
+          based on customer input.
+        </p>
+        <div className="sirv-links">
+          <a href={DOCS_URL} target="_blank" rel="noopener noreferrer">
+            Documentation
+          </a>
+          <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer">
+            Contact support
+          </a>
+          <a href={API_SETTINGS_URL} target="_blank" rel="noopener noreferrer">
+            Your API keys
+          </a>
+        </div>
+      </section>
     </div>
   );
 }
@@ -142,22 +177,34 @@ export function SirvSettingsView() {
 function ConnectedPanel({
   status,
   busy,
+  error,
   onSelectDelivery,
   onDisconnect,
 }: {
   status: SirvConnectionStatus;
   busy: boolean;
+  error: string | null;
   onSelectDelivery: (host: string) => void;
   onDisconnect: () => void;
 }) {
   const aliases = status.aliases ?? [];
   return (
     <div className="sirv-panel">
-      <div className="sirv-row">
-        <span className="sirv-badge sirv-badge--ok">Connected</span>
-        <span className="sirv-muted">
-          Account <strong>{status.accountAlias}</strong>
+      <div className="sirv-row sirv-row--between">
+        <span className="sirv-row">
+          <span className="sirv-badge sirv-badge--ok">Connected</span>
+          <span className="sirv-muted">
+            Account <strong>{status.accountAlias}</strong>
+          </span>
         </span>
+        <button
+          className="sirv-btn sirv-btn--danger"
+          type="button"
+          onClick={onDisconnect}
+          disabled={busy}
+        >
+          Disconnect
+        </button>
       </div>
 
       <div className="sirv-field">
@@ -183,9 +230,7 @@ function ConnectedPanel({
         )}
       </div>
 
-      <button className="sirv-btn" type="button" onClick={onDisconnect} disabled={busy}>
-        Disconnect
-      </button>
+      {error ? <div className="sirv-alert sirv-alert--error">{error}</div> : null}
     </div>
   );
 }

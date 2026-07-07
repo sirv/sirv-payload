@@ -5,17 +5,75 @@
  */
 
 .sirv-settings {
-  max-width: 720px;
+  max-width: 760px;
   margin: 0 auto;
-  padding: var(--base, 20px);
+  padding: calc(var(--base, 20px) * 1.5) var(--base, 20px);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--base, 20px) * 1.25);
 }
 
 .sirv-settings__header {
-  margin-bottom: calc(var(--base, 20px) * 1.5);
+  margin-bottom: 0;
 }
 
 .sirv-settings__title {
-  margin: 0 0 0.25em;
+  margin: 0 0 0.15em;
+  font-size: 1.9rem;
+}
+
+/* Card container (mirrors the Strapi settings cards) */
+.sirv-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--base, 16px);
+  padding: calc(var(--base, 20px) * 1.2);
+  border: 1px solid var(--theme-elevation-100, #e6e6e6);
+  border-radius: var(--style-radius-m, 8px);
+  background: var(--theme-elevation-0, #fff);
+}
+
+.sirv-card__title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.sirv-required {
+  color: var(--theme-error-500, #c0392b);
+}
+
+.sirv-hint {
+  font-size: 0.8rem;
+  color: var(--theme-elevation-500, #808080);
+}
+
+.sirv-hint a,
+.sirv-links a {
+  color: var(--theme-success-600, #0a7c3b);
+  text-decoration: none;
+}
+
+.sirv-hint a:hover,
+.sirv-links a:hover {
+  text-decoration: underline;
+}
+
+.sirv-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--base, 20px) * 1.5);
+}
+
+.sirv-row--between {
+  justify-content: space-between;
+  width: 100%;
+}
+
+.sirv-btn--danger {
+  background: var(--theme-error-100, #fbdcdc);
+  border-color: var(--theme-error-200, #f5b7b7);
+  color: var(--theme-error-700, #8a1f1f);
 }
 
 .sirv-settings__subtitle,
