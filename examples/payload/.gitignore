@@ -1,0 +1,11 @@
+# Next.js
+.next/
+next-env.d.ts
+
+# Payload generated types + local db
+payload-types.ts
+*.db
+*.db-journal
+
+# Env
+.env

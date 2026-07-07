@@ -1,0 +1,36 @@
+{
+  "name": "@sirv/payload-example",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Example Next.js + Payload v3 app with @sirv/payload-plugin installed, plus frontend pages rendering stored sirvMedia values with @sirv/react.",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3005",
+    "devsafe": "rm -rf .next && next dev -p 3005",
+    "build": "next build",
+    "start": "next start -p 3005",
+    "generate:types": "payload generate:types",
+    "generate:importmap": "payload generate:importmap"
+  },
+  "dependencies": {
+    "@payloadcms/db-sqlite": "3.85.2",
+    "@payloadcms/next": "3.85.2",
+    "@payloadcms/richtext-lexical": "3.85.2",
+    "@sirv/payload-plugin": "workspace:*",
+    "@sirv/react": "^0.2.0",
+    "cross-env": "^7.0.3",
+    "graphql": "^16.8.1",
+    "monaco-editor": "^0.52.0",
+    "next": "~15.4.11",
+    "payload": "3.85.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sharp": "^0.34.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.5.3"
+  }
+}

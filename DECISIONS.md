@@ -302,6 +302,41 @@ in devtools that no browser response ever contains the secret. The design guaran
   browser verbatim; a true batch-select is a possible `@sirv/core` enhancement later.
 - Drag-reorder via native HTML5 DnD (no dnd library) to keep the dependency surface minimal.
 
+## Milestone 5 (example app + live verification) - DONE (2026-07-07)
+
+- **`examples/payload`**: a combined Next.js 15 + Payload v3 app (in the workspace, so
+  `@sirv/payload-plugin: workspace:*` resolves). `payload.config.ts` wires `sirvPlugin()` +
+  sqlite adapter + lexical; `collections/Posts.ts` uses all three factories (`hero`
+  sirvMediaField, `gallery` sirvMediaListField, `spin` sirvMediaField restricted to `['spin']`,
+  `assetUrl` sirvAssetUrlField). Standard App-Router `(payload)` admin + api routes (verified
+  export names against installed `@payloadcms/next@3.85.2`: `handleServerFunctions` is in
+  `/layouts` not `/utilities`; graphql route exposes only `GRAPHQL_POST`). Pre-generated
+  `importMap.js` registers all seven client components so it runs before `generate:importmap`.
+- **Frontend** `(frontend)/page.tsx`: reads the first post via the Local API and renders
+  hero/gallery/spin/assetUrl through `@sirv/react`'s polymorphic `SirvMedia` + a `fromStoredMedia`
+  alias of `fromSanityMedia`; also renders a static sample of every media type so the page shows
+  content with no data. Confirms the stored `sirvMedia` value renders with NO transformation
+  layer (the spec's key simplification: Payload lives in Next, the native home of `@sirv/react`).
+- **Live smoke test** `apps/payload-plugin/src/lib/sirv-server.live.test.ts` (gated
+  `SIRV_LIVE=1` + creds, `describe.skipIf`): mints a bearer with positive `expiresIn`, verifies
+  the server bearer cache, and validates credentials returning `accountAlias` + delivery domains.
+  Skipped in the hermetic suite (now 8 live-only skipped total).
+- **Dual React-types fix (important).** The example runs React 19 (Payload admin host) while the
+  vendored `packages/*` test on React 18; a bare `tsc` on the example produced spurious
+  `ReactNode`/`bigint` mismatches from two `@types/react` copies. Added a workspace
+  `pnpm.overrides` pinning `@types/react@19.2.17` + `@types/react-dom@19.2.3`. Verified this keeps
+  `packages/*` + plugin typecheck AND all tests green, and drops the example's `tsc` errors to 0
+  (so `next build`, which typechecks, works in-repo). In a real standalone consumer project there
+  is only one `@types/react`, so this is a monorepo-only accommodation.
+- Verified green: `pnpm check` exit 0; `examples/payload` `tsc --noEmit` exit 0.
+
+**Decisions taken here**
+- SQLite (`@payloadcms/db-sqlite`) as the example DB: zero-setup local file, lightest adapter.
+- `next` pinned to `~15.4.11` to satisfy `@payloadcms/next@3.85.2`'s peer window; added
+  `monaco-editor` to satisfy the `@payloadcms/ui` optional peer.
+- Example is validated structurally + by typecheck here; a live `pnpm dev` + connect + pick +
+  render pass needs a real Sirv account and a running DB (Igor's machine).
+
 ## Outstanding / for live verification by Igor
 
 - Token TTL: docs prose says 20 min (1200s); `openapi` allows `expiresIn` up to 604800. Confirm
