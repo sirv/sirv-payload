@@ -44,7 +44,11 @@ export default buildConfig({
 <p><strong>2. </strong>Paste your <strong>Client ID</strong> and <strong>Client Secret</strong> from <a href="https://my.sirv.com/#/account/settings/api" target="_blank" rel="noopener noreferrer">my.sirv.com &gt; Account &gt; Settings &gt; API</a> and click <strong>Connect</strong>.</p>
 <p><strong>3. </strong>Choose the delivery domain to serve assets from (if your account has more than one).</p>
 <div class="Sirv" data-options="fullscreen.always:true" style="margin-bottom:30px">
-    <img class="Sirv" data-src="https://sirv.sirv.com/website/screenshots/payload/payload-sirv-connect.png?profile=screenshots-grey-border" alt="Connect your Sirv account in the Payload admin settings view">
+    <img class="Sirv" data-src="https://sirv.sirv.com/website/screenshots/payload/01-connect-account.png?profile=screenshots-grey-border" alt="Connect your Sirv account in the Payload admin settings view">
+</div>
+<p>Once connected, the settings view shows your account and the chosen delivery domain, with a button to disconnect.</p>
+<div class="Sirv" data-options="fullscreen.always:true" style="margin-bottom:30px">
+    <img class="Sirv" data-src="https://sirv.sirv.com/website/screenshots/payload/02-settings-page.png?profile=screenshots-grey-border" alt="The connected Sirv settings view in the Payload admin">
 </div>
 <p>The credentials are stored in an admin-only <span class="code-inline">sirv-settings</span> global. The secret is <strong>encrypted at rest</strong> (AES-256-GCM, keyed by your <span class="code-inline">PAYLOAD_SECRET</span>) and never returned to the browser or the REST/GraphQL API. When editors browse the DAM, the plugin mints a short-lived 20-minute token on your server; the admin talks to Sirv directly with that token only.</p>
 <h2 id="add-sirv-fields">Add Sirv fields to a collection <a class="toc-anchor" href="#add-sirv-fields"></a></h2>
@@ -68,6 +72,10 @@ export default buildConfig({
   sirvMediaField({ name: 'spin', allowedTypes: ['spin'] }),
   sirvAssetUrlField({ name: 'datasheet', allowedTypes: ['file'] }),
 ]</pre>
+<p>Each field type renders in the document editor with a thumbnail preview, alt/caption inputs and its own picker:</p>
+<div class="Sirv" data-options="fullscreen.always:true" style="margin-bottom:30px">
+    <img class="Sirv" data-src="https://sirv.sirv.com/website/screenshots/payload/03-sirv-supported-field-types.png?profile=screenshots-grey-border" alt="The Sirv field types in a Payload document: single media, gallery and asset URL">
+</div>
 <h2 id="using-the-picker">Using the picker <a class="toc-anchor" href="#using-the-picker"></a></h2>
 <p>Editing a document, each Sirv field shows a <strong>Pick from Sirv</strong> button that opens the media library:</p>
 <ul>
@@ -76,9 +84,21 @@ export default buildConfig({
     <li>Click an asset to <strong>preview</strong> it - spins, viewer files and 3D models load live, videos play - then confirm. In a gallery field, keep picking to add several assets, then drag to reorder them.</li>
 </ul>
 <div class="Sirv" data-options="fullscreen.always:true" style="margin-bottom:30px">
-    <img class="Sirv" data-src="https://sirv.sirv.com/website/screenshots/payload/payload-dam-browser.png?profile=screenshots-grey-border" alt="Browse and pick Sirv assets inside the Payload admin">
+    <img class="Sirv" data-src="https://sirv.sirv.com/website/screenshots/payload/04-dam-browser-grid.png?profile=screenshots-grey-border" alt="Browse Sirv folders and assets in the DAM browser grid inside the Payload admin">
+</div>
+<p>Click an asset to open its details: a live preview, its dimensions and size, and links to open the original or manage it on Sirv.</p>
+<div class="Sirv" data-options="fullscreen.always:true" style="margin-bottom:30px">
+    <img class="Sirv" data-src="https://sirv.sirv.com/website/screenshots/payload/05-dam-browser-item-details.png?profile=screenshots-grey-border" alt="Asset details with a live preview in the Sirv DAM browser">
+</div>
+<p>For a gallery field, select several assets across folders and searches, then add them together and drag to reorder.</p>
+<div class="Sirv" data-options="fullscreen.always:true" style="margin-bottom:30px">
+    <img class="Sirv" data-src="https://sirv.sirv.com/website/screenshots/payload/06-dam-browser-multiple-selection.png?profile=screenshots-grey-border" alt="Selecting multiple assets in the Sirv DAM browser">
 </div>
 <p>When an image or video is picked, its <strong>alt text</strong> and <strong>caption</strong> are filled in automatically from the asset's title and description in Sirv. Editors can adjust them right in the field.</p>
+<p>A completed document with several Sirv fields filled in:</p>
+<div class="Sirv" data-options="fullscreen.always:true" style="margin-bottom:30px">
+    <img class="Sirv" data-src="https://sirv.sirv.com/website/screenshots/payload/07-post-with-sirv-assets.png?profile=screenshots-grey-border" alt="A Payload document with Sirv media fields filled in">
+</div>
 <h2 id="what-gets-stored">What gets stored <a class="toc-anchor" href="#what-gets-stored"></a></h2>
 <p>The field saves plain JSON in your document - no file duplication, the media stays on Sirv:</p>
 <pre class="prettyprint lang-js">{
