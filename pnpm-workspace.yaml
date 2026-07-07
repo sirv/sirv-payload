@@ -1,0 +1,11 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+  - 'examples/*'
+
+# Build scripts only run for these trusted deps (pnpm 10 blocks postinstall by default).
+onlyBuiltDependencies:
+  - '@biomejs/biome'
+  - esbuild
+  - '@swc/core'
+  - sharp

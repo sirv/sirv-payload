@@ -1,0 +1,23 @@
+{
+  "name": "@sirv/sirv-client",
+  "version": "0.0.0",
+  "description": "Framework-agnostic Sirv REST API client (token auth from clientId/secret, DAM browse/search, account info). Works in browser and Node.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  }
+}

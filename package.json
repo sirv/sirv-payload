@@ -1,0 +1,39 @@
+{
+  "name": "@sirv/payload-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Add Sirv as a first-class media source inside Payload CMS v3, rendered on the frontend with @sirv/react (pnpm monorepo).",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sirv/sirv-payload.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0 <=22.x.x",
+    "pnpm": ">=10.0.0"
+  },
+  "packageManager": "pnpm@10.28.2",
+  "scripts": {
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "build": "pnpm -r --if-present --filter \"!./examples/*\" run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:live": "vitest run packages/sirv-client/src/live.test.ts",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "boundaries": "node scripts/check-package-boundaries.mjs",
+    "check": "pnpm boundaries && pnpm lint && pnpm typecheck && pnpm test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@testing-library/react": "^14.3.1",
+    "@types/node": "^20.14.9",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "jsdom": "^24.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.5.3",
+    "vitest": "^1.6.0"
+  }
+}

@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Builds
+dist/
+build/
+.next/
+.turbo/
+.cache/
+*.tsbuildinfo
+
+# Local package tarballs (customer-style testing)
+.tarballs/
+*.tgz
+
+# Env & credentials - never commit
+.env
+.env.local
+.env*.local
+.npmrc
+
+# Test/coverage
+coverage/
+
+# OS / editor
+.DS_Store
+.idea/
+*.log
+pnpm-debug.log*
+
+# Claude local settings / preview launch config
+.claude/settings.local.json
+.claude/launch.json

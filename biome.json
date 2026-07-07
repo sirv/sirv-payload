@@ -1,0 +1,70 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "ignore": [
+      "dist",
+      "build",
+      ".next",
+      ".cache",
+      "node_modules",
+      "coverage",
+      "**/importMap.js",
+      "**/*.json"
+    ]
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "suspicious": {
+        "noExplicitAny": "off"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "include": ["packages/**"],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "payload": "packages/* must be host-agnostic - no Payload imports. Payload glue lives in apps/payload-plugin.",
+                  "@payloadcms/ui": "packages/* must be host-agnostic - no Payload imports.",
+                  "@payloadcms/next": "packages/* must be host-agnostic - no Payload imports.",
+                  "@payloadcms/db-mongodb": "packages/* must be host-agnostic - no Payload imports.",
+                  "@payloadcms/db-postgres": "packages/* must be host-agnostic - no Payload imports.",
+                  "@payloadcms/richtext-lexical": "packages/* must be host-agnostic - no Payload imports."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
