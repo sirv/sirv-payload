@@ -823,3 +823,23 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ---- Explicit accent overrides (#579be8), last so they win the cascade ---- */
+.sirv-dam-card__frame.sirv-dam-card__folder-icon svg {
+  color: #579be8;
+}
+
+.sirv-type-filter__chip--active {
+  border-color: #579be8;
+  background: #579be8;
+}
+
+.sirv-btn--primary {
+  border-color: #579be8;
+  background: #579be8;
+}
+
+.sirv-hint a,
+.sirv-links a {
+  color: #579be8;
+}
