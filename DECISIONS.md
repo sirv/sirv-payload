@@ -337,6 +337,30 @@ in devtools that no browser response ever contains the secret. The design guaran
 - Example is validated structurally + by typecheck here; a live `pnpm dev` + connect + pick +
   render pass needs a real Sirv account and a running DB (Igor's machine).
 
+## Milestone 6 (publish and list) - DONE where possible; publish PENDING (2026-07-07)
+
+- **`apps/payload-plugin/README.md`**: the npm-facing README with the full install walkthrough
+  (add `sirvPlugin()`, `payload generate:importmap`, import `styles.css`, connect flow, the three
+  field factories + `allowedTypes`, the frozen stored shape, `@sirv/react` rendering, the security
+  model). Root `README.md`: monorepo overview + dev/live-test commands.
+- **`sirv-payload.article.html`**: sirv.com/help article draft, mirroring the shipped
+  Storyblok/Contentful article HTML exactly (intro with floated logo, anchored `h2`/`h3`,
+  `prettyprint` code blocks, numbered `<strong>N.</strong>` steps, `.Sirv` screenshot
+  placeholders, FAQ card + JSON-LD, trailing sirv.js script). 13.5 KB, 8 headings, no em-dashes.
+- **Spec audit**: ran `/igor-audit-spec` - added the Status snapshot, tagged M0-M5 `[DONE]` /
+  M6 `[IN-PROGRESS]` with Evidence lines, and added drift notes (5 endpoints vs 3, the token-seam
+  realization, the standalone settings view / own modal).
+- Verified green after all doc changes: `pnpm check` exit 0.
+
+**PENDING (cannot run in this environment; Igor to do):**
+- Push the local git history to `github.com/sirv/sirv-payload` (no remote auth here).
+- `npm publish` `@sirv/payload-plugin` via a temporary gitignored `.npmrc` (delete after). Bump
+  `version` from `0.1.0` if desired; set `publishConfig.access: public` for the scoped package.
+- Submit to the Payload community plugins directory; add GitHub topics `payload-plugin`, `sirv`,
+  `dam`.
+- Replace the article's placeholder screenshots (`sirv.sirv.com/website/screenshots/payload/*`)
+  and the `payload-logo.png` with real uploads.
+
 ## Outstanding / for live verification by Igor
 
 - Token TTL: docs prose says 20 min (1200s); `openapi` allows `expiresIn` up to 604800. Confirm

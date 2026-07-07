@@ -14,6 +14,10 @@ This is the **fifth headless-CMS port** of the same shared core. Everything hard
 built and battle-tested on four hosts. The Payload-specific work is glue: a plugin function, a
 settings global, a token endpoint, and field-config factories with custom admin components.
 
+## Status snapshot
+
+Last audited: 2026-07-07 - 6 of 7 MVP milestones DONE, 1 IN-PROGRESS. See Implementation Order.
+
 ## Background
 
 - Payload is the momentum leader in headless CMS: ~43K GitHub stars, ~434K weekly npm downloads
@@ -110,6 +114,22 @@ Payload admin (browser)                      Host's Payload/Next.js server      
 └─────────────────────────────┘             └──────────────────────────────┘
 Frontend (same Next.js app or any consumer): stored sirvMedia JSON ──► @sirv/react
 ```
+
+> **Drift note:** the implemented endpoint set is five, not three: `connect`, `token`, `status`,
+> plus `delivery` (persist the chosen delivery domain without re-sending the secret, since the
+> browser never holds it) and `disconnect` (clear credentials + bearer cache). See
+> `apps/payload-plugin/src/endpoints/`.
+
+> **Drift note:** the `TokenStorage`/`PayloadTokenStore` seam named in the spec is realized
+> differently. The shared `TokenStorage` interface leaks `clientSecret` into the browser, so it is
+> intentionally NOT used (same call as Strapi). The browser seam is `createPayloadTokenStore`
+> (bearer-only, backed by `POST /api/sirv/token`) + `createBrowserSirvClient` (wraps the shared
+> `createSirvClient` with a live-bearer fetch). See `DECISIONS.md` M2.
+
+> **Drift note:** the Sirv settings view renders as a standalone client component at `/admin/sirv`
+> (functional, but without Payload's `DefaultTemplate` nav chrome). Wrapping it in
+> `@payloadcms/next`'s `DefaultTemplate` is a deferred refinement. The self-contained `SirvModal`
+> is used instead of `@payloadcms/ui`'s `Modal` to avoid the React 18/19 `@faceless-ui` coupling.
 
 Key decisions (made — don't relitigate without documenting in `DECISIONS.md`):
 
@@ -230,31 +250,38 @@ React Testing Library, Biome, pnpm workspaces.
 
 Each milestone is stoppable — **stop after each one and report before continuing.**
 
-- **M0 — Read & decide (no code).** Read this spec; Sirv REST API docs; Payload plugin/custom-
+- **M0 — Read & decide (no code).** [DONE] Read this spec; Sirv REST API docs; Payload plugin/custom-
   component/fields/globals/endpoints docs; the Sanity + Strapi repos end-to-end; Contentful
   `DECISIONS.md` + Storyblok `PORTING-GUIDE.md`. Write `docs/sirv-api-notes.md`,
   `docs/port-notes-from-sanity.md`, `docs/payload-gotchas.md` (importMap mechanics, RSC/client
   component split, exact minimum Payload version, React 19 peer-dep check for `@sirv/core`).
   Seed `DECISIONS.md`.
-- **M1 — Scaffold.** pnpm workspace; vendor `packages/*` from `../sanity`; retarget boundary
+> Evidence: `docs/sirv-api-notes.md`, `docs/payload-gotchas.md`, `docs/port-notes-from-sanity.md`, `docs/dam-core-extraction-notes.md`, and `DECISIONS.md` all present with the required answers (min version `^3.37.0`, import-map mechanics, React 19).
+- **M1 — Scaffold.** [DONE] pnpm workspace; vendor `packages/*` from `../sanity`; retarget boundary
   guardrails to `payload`/`@payloadcms/*`; Biome, tsconfig, Vitest wiring; `.gitignore` +
   `.env.example`; git init + push to `sirv/sirv-payload`. Green: boundaries, lint, typecheck,
   test.
-- **M2 — Plugin skeleton + auth.** `sirvPlugin()` config transform; `sirv-settings` global
+> Evidence: `pnpm-workspace.yaml`, vendored `packages/{core,sirv-client,url-builder}`, `scripts/check-package-boundaries.mjs` + `tests/package-boundaries.test.ts` (retargeted to Payload), `biome.json` `noRestrictedImports`; `pnpm check` exits 0. Git initialized locally; remote push to `sirv/sirv-payload` still outstanding (no remote auth in build env).
+- **M2 — Plugin skeleton + auth.** [DONE] `sirvPlugin()` config transform; `sirv-settings` global
   (encrypted secret, admin-only access, secret excluded from afterRead); endpoints
   `connect` / `token` / `status`; `PayloadTokenStore` adapter; Sirv settings admin view with the
   full connect flow. Acceptance: connect a real account; secret absent from all browser traffic.
-- **M3 — `sirvMediaField`.** JSON field factory + client Field component opening the DAM
+> Evidence: `apps/payload-plugin/src/index.ts` (`sirvPlugin`), `globals/sirv-settings.ts` (encrypted `clientSecret`, `read:()=>false`), `endpoints/{connect,token,status,delivery,disconnect}.ts`, `components/adapters/PayloadTokenStore.ts`, `components/SirvSettingsView.tsx`, `lib/encryption.ts`. Tests pass; live "connect a real account + secret-absent" acceptance still needs Sirv credentials (Igor).
+- **M3 — `sirvMediaField`.** [DONE] JSON field factory + client Field component opening the DAM
   browser modal (`@sirv/core` components + Payload chrome + `sirv-*` stylesheet); store frozen
   `sirvMedia` value; `Cell` thumbnail; alt/caption editing; `allowedTypes`.
-- **M4 — Remaining fields.** `sirvMediaListField` (multi-select, drag-reorder),
+> Evidence: `fields/index.ts` (`sirvMediaField`), `fields/value.ts` (`damAssetToMediaValue`, `enrichMediaValue`), `components/{SirvMediaField,SirvMediaCell,SirvDamBrowser,SirvModal}.tsx`, `styles.css`; `fields/value.test.ts` covers all 5 types + unicode + file rejection.
+- **M4 — Remaining fields.** [DONE] `sirvMediaListField` (multi-select, drag-reorder),
   `sirvAssetUrlField` (URL mode incl. generic files); shared modal state; tests.
-- **M5 — Example app + live verification.** `examples/payload/` Next.js app with plugin
+> Evidence: `components/SirvMediaListField.tsx` (HTML5 drag-reorder, multi-pick via `closeOnPick=false`), `components/SirvMediaListCell.tsx`, `components/SirvAssetUrlField.tsx` (allows `file`); `fields/index.test.ts` verifies all three factory configs.
+- **M5 — Example app + live verification.** [DONE] `examples/payload/` Next.js app with plugin
   installed, a demo collection, and frontend pages rendering every media type via published
   `@sirv/react`. Live smoke tests gated by `SIRV_LIVE=1`.
-- **M6 — Publish & list.** README install walkthrough (incl. `generate:importmap`); npm publish
+> Evidence: `examples/payload/` (payload.config.ts + `collections/Posts.ts` using all three factories + App-Router `(payload)` admin/api routes + `(frontend)/page.tsx` rendering via `@sirv/react`); example `tsc --noEmit` exits 0. Live smoke test `apps/payload-plugin/src/lib/sirv-server.live.test.ts` (SIRV_LIVE-gated). A live `pnpm dev` + connect + render run needs Sirv creds + running DB (Igor).
+- **M6 — Publish & list.** [IN-PROGRESS] README install walkthrough (incl. `generate:importmap`); npm publish
   (temporary gitignored `.npmrc`, delete after); community-directory submission; help article
   draft; final `/igor-audit-spec` pass.
+> Evidence: DONE - `apps/payload-plugin/README.md` (full install walkthrough incl. `generate:importmap`), root `README.md`, `sirv-payload.article.html` (help article, Storyblok/Contentful format), this audit pass. PENDING - npm publish (needs a credentialed `.npmrc`) and Payload community-directory submission (manual/external); both require Igor.
 
 ## Notes for the Implementer
 

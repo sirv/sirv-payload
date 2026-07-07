@@ -1,0 +1,174 @@
+<p><img decoding="async" style="margin-left: 50; margin-bottom: 20;" src="https://sirv.sirv.com/website/payload-logo.png?w=230" align="right" alt="Payload CMS logo" />Browse, search and pick media from your Sirv account without leaving the Payload admin panel.</p>
+<p>The Sirv plugin for Payload CMS adds a full Sirv DAM browser to your admin. Editors pick <strong>images</strong>, <strong>videos</strong>, <strong>360 spins</strong>, <strong>Sirv Media Viewer</strong> assets and <strong>3D models</strong> (glTF/GLB) from Sirv, and your frontend delivers them through Sirv's global CDN - resized, optimized and in the best format for every visitor.</p>
+<p>Alt text and captions are filled in automatically from your Sirv asset metadata, galleries support multi-select and drag-to-reorder, and your Sirv <strong>secret never reaches the browser</strong> - it is stored encrypted on your own server and used only to mint short-lived access tokens.</p>
+<h2 id="requirements">Requirements <a class="toc-anchor" href="#requirements"></a></h2>
+<ul>
+    <li>A <a href="https://my.sirv.com/#/signup" target="_blank" rel="noopener noreferrer">Sirv account</a> (free or paid) and its REST API <strong>Client ID</strong> and <strong>Client Secret</strong> from <a href="https://my.sirv.com/#/account/settings/api" target="_blank" rel="noopener noreferrer">Account &gt; Settings &gt; API</a>.</li>
+    <li>A Payload CMS <strong>v3</strong> project (React 19 / Next.js 15).</li>
+</ul>
+<h2 id="installation">Installation <a class="toc-anchor" href="#installation"></a></h2>
+<p>The plugin is a standard Payload plugin published on npm. Install it, add it to your config, regenerate the import map and import the stylesheet - once.</p>
+<p><strong>1. </strong>Install the package:</p>
+<pre class="prettyprint lang-bash">pnpm add @sirv/payload-plugin</pre>
+<p><strong>2. </strong>Add <span class="code-inline">sirvPlugin()</span> to your Payload config and drop the field factories into any collection:</p>
+<pre class="prettyprint lang-tsx">// payload.config.ts
+import { buildConfig } from 'payload';
+import {
+  sirvPlugin,
+  sirvMediaField,
+  sirvMediaListField,
+  sirvAssetUrlField,
+} from '@sirv/payload-plugin';
+
+export default buildConfig({
+  plugins: [sirvPlugin()],
+  collections: [
+    {
+      slug: 'posts',
+      fields: [
+        { name: 'title', type: 'text' },
+        sirvMediaField({ name: 'hero' }),
+        sirvMediaListField({ name: 'gallery' }),
+        sirvAssetUrlField({ name: 'attachment' }),
+      ],
+    },
+  ],
+});</pre>
+<p><strong>3. </strong>Regenerate Payload's import map so the admin can resolve the plugin's components. Run this after installing and after any upgrade that changes the component set:</p>
+<pre class="prettyprint lang-bash">pnpm payload generate:importmap</pre>
+<p><strong>4. </strong>Import the admin stylesheet once, in your app's <span class="code-inline">src/app/(payload)/custom.scss</span>:</p>
+<pre class="prettyprint lang-html">@import '@sirv/payload-plugin/styles.css';</pre>
+<p>Start your app - a <strong>Sirv</strong> link now appears in the admin sidebar.</p>
+<h2 id="connect-your-sirv-account">Connect your Sirv account <a class="toc-anchor" href="#connect-your-sirv-account"></a></h2>
+<p><strong>1. </strong>In the Payload admin, click <strong>Sirv</strong> in the sidebar (or visit <span class="code-inline">/admin/sirv</span>).</p>
+<p><strong>2. </strong>Paste your <strong>Client ID</strong> and <strong>Client Secret</strong> from <a href="https://my.sirv.com/#/account/settings/api" target="_blank" rel="noopener noreferrer">my.sirv.com &gt; Account &gt; Settings &gt; API</a> and click <strong>Connect</strong>.</p>
+<p><strong>3. </strong>Choose the delivery domain to serve assets from (if your account has more than one).</p>
+<div class="Sirv" data-options="fullscreen.always:true" style="margin-bottom:30px">
+    <img class="Sirv" data-src="https://sirv.sirv.com/website/screenshots/payload/payload-sirv-connect.png?profile=screenshots-grey-border" alt="Connect your Sirv account in the Payload admin settings view">
+</div>
+<p>The credentials are stored in an admin-only <span class="code-inline">sirv-settings</span> global. The secret is <strong>encrypted at rest</strong> (AES-256-GCM, keyed by your <span class="code-inline">PAYLOAD_SECRET</span>) and never returned to the browser or the REST/GraphQL API. When editors browse the DAM, the plugin mints a short-lived 20-minute token on your server; the admin talks to Sirv directly with that token only.</p>
+<h2 id="add-sirv-fields">Add Sirv fields to a collection <a class="toc-anchor" href="#add-sirv-fields"></a></h2>
+<p>The plugin exports three field factories. Each returns a standard Payload field config, so you can add them to any collection or global.</p>
+<ul>
+    <li><span class="code-inline">sirvMediaField(&#123; name &#125;)</span> - a single asset, stored as a JSON object.</li>
+    <li><span class="code-inline">sirvMediaListField(&#123; name &#125;)</span> - a gallery: multi-select with drag-to-reorder, stored as a JSON array.</li>
+    <li><span class="code-inline">sirvAssetUrlField(&#123; name &#125;)</span> - a plain delivery URL string to any Sirv asset, including generic files such as PDFs and ZIPs.</li>
+</ul>
+<p>All three accept the same options:</p>
+<ul>
+    <li><span class="code-inline">name</span> - the field's stored key (required).</li>
+    <li><span class="code-inline">label</span> - a display label (optional).</li>
+    <li><span class="code-inline">required</span> - mark the field required (optional).</li>
+    <li><span class="code-inline">allowedTypes</span> - restrict the picker to a subset of <span class="code-inline">image</span>, <span class="code-inline">video</span>, <span class="code-inline">spin</span> (360 spins), <span class="code-inline">view</span> (Sirv Media Viewer files) and <span class="code-inline">model</span> (glTF/GLB 3D models). The URL field additionally allows <span class="code-inline">file</span> for generic documents. Default: the five media types.</li>
+</ul>
+<p>Example - a hero image, a video/image gallery, a spin-only field and a PDF link:</p>
+<pre class="prettyprint lang-tsx">fields: [
+  sirvMediaField({ name: 'hero', allowedTypes: ['image'] }),
+  sirvMediaListField({ name: 'gallery', allowedTypes: ['image', 'video'] }),
+  sirvMediaField({ name: 'spin', allowedTypes: ['spin'] }),
+  sirvAssetUrlField({ name: 'datasheet', allowedTypes: ['file'] }),
+]</pre>
+<h2 id="using-the-picker">Using the picker <a class="toc-anchor" href="#using-the-picker"></a></h2>
+<p>Editing a document, each Sirv field shows a <strong>Pick from Sirv</strong> button that opens the media library:</p>
+<ul>
+    <li><strong>Browse</strong> folders with the breadcrumb trail, or <strong>search</strong> your entire account by filename.</li>
+    <li><strong>Filter chips</strong> narrow results to images, videos, 360 spins, viewer files or 3D models.</li>
+    <li>Click an asset to <strong>preview</strong> it - spins, viewer files and 3D models load live, videos play - then confirm. In a gallery field, keep picking to add several assets, then drag to reorder them.</li>
+</ul>
+<div class="Sirv" data-options="fullscreen.always:true" style="margin-bottom:30px">
+    <img class="Sirv" data-src="https://sirv.sirv.com/website/screenshots/payload/payload-dam-browser.png?profile=screenshots-grey-border" alt="Browse and pick Sirv assets inside the Payload admin">
+</div>
+<p>When an image or video is picked, its <strong>alt text</strong> and <strong>caption</strong> are filled in automatically from the asset's title and description in Sirv. Editors can adjust them right in the field.</p>
+<h2 id="what-gets-stored">What gets stored <a class="toc-anchor" href="#what-gets-stored"></a></h2>
+<p>The field saves plain JSON in your document - no file duplication, the media stays on Sirv:</p>
+<pre class="prettyprint lang-js">{
+  "_type": "sirvMedia",
+  "mediaType": "image",
+  "sirvPath": "/products/shoe.jpg",
+  "sirvAlias": "yourcompany.sirv.com",
+  "originalUrl": "https://yourcompany.sirv.com/products/shoe.jpg",
+  "width": 2000,
+  "height": 1890,
+  "alt": "Red running shoe",
+  "caption": "Side view"
+}</pre>
+<p>The gallery field stores an array of these objects; the URL field stores a plain URL string. This is the same flat shape used by the Sirv plugins for Sanity, Storyblok, Contentful and Strapi.</p>
+<h2 id="rendering-on-your-frontend">Rendering on your frontend <a class="toc-anchor" href="#rendering-on-your-frontend"></a></h2>
+<p>Because Payload v3 runs inside Next.js - the native home of <a href="https://www.npmjs.com/package/@sirv/react" target="_blank" rel="noopener noreferrer">@sirv/react</a> - rendering is trivial. Read the document with Payload's Local API, then pass the stored value straight to <span class="code-inline">@sirv/react</span>:</p>
+<pre class="prettyprint lang-tsx">import { SirvMedia, fromSanityMedia as fromStoredMedia } from '@sirv/react';
+
+// `post.hero` is the stored sirvMedia object from your Payload document.
+&lt;SirvMedia value={fromStoredMedia(post.hero)} /&gt;
+
+// A gallery:
+{post.gallery.map((item, i) =&gt; (
+  &lt;SirvMedia key={i} value={fromStoredMedia(item)} /&gt;
+))}</pre>
+<p><span class="code-inline">fromStoredMedia</span> reads the flat <span class="code-inline">sirvMedia</span> shape directly, so no conversion layer is needed. The <span class="code-inline">@sirv/react</span> components build responsive, optimized Sirv URLs and load sirv.js automatically for spins, viewers and 3D models. A complete Next.js + Payload example is in the <span class="code-inline">examples/payload</span> folder of the repository.</p>
+<h2 id="faq">FAQ <a class="toc-anchor" href="#faq"></a></h2>
+<section class="sc_fs_faq sc_card ">
+    <div>
+        <em>Does the plugin store my Sirv secret in the browser?</em>
+        <div>
+            <p>No. The Client Secret is stored in an admin-only global, encrypted at rest with a key derived from your PAYLOAD_SECRET, and its read access is denied so it is never returned to the admin UI or the API. The browser only ever receives a short-lived 20-minute access token, minted server-side, which it uses to browse the Sirv DAM directly.</p>
+        </div>
+    </div>
+    <div>
+        <em>Which media types does the plugin support?</em>
+        <div>
+            <p>Images, videos, 360 spins, Sirv Media Viewer (.view) files and 3D models (.glb/.gltf), plus generic files such as PDFs and ZIPs when "file" is added to allowedTypes (typically in the URL field).</p>
+        </div>
+    </div>
+    <div>
+        <em>My Sirv fields or settings view do not appear in the admin.</em>
+        <div>
+            <p>Run "payload generate:importmap" and restart the app. Payload resolves custom admin components through a generated import map, which is not re-run automatically after a production build, so it must be regenerated after installing or upgrading the plugin.</p>
+        </div>
+    </div>
+    <div>
+        <em>Does it replace Payload's built-in upload storage?</em>
+        <div>
+            <p>No. This plugin is a DAM picker: your media stays on Sirv and the field stores a small JSON reference. It does not change where Payload's native uploads are stored. A Sirv storage adapter for native uploads is a separate, future package.</p>
+        </div>
+    </div>
+</section>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [{
+            "@type": "Question",
+            "name": "Does the plugin store my Sirv secret in the browser?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. The Client Secret is stored in an admin-only global, encrypted at rest with a key derived from your PAYLOAD_SECRET, and its read access is denied so it is never returned to the admin UI or the API. The browser only ever receives a short-lived 20-minute access token, minted server-side, which it uses to browse the Sirv DAM directly."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Which media types does the plugin support?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Images, videos, 360 spins, Sirv Media Viewer (.view) files and 3D models (.glb/.gltf), plus generic files such as PDFs and ZIPs when \"file\" is added to allowedTypes (typically in the URL field)."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "My Sirv fields or settings view do not appear in the admin.",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Run \"payload generate:importmap\" and restart the app. Payload resolves custom admin components through a generated import map, which is not re-run automatically after a production build, so it must be regenerated after installing or upgrading the plugin."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Does it replace Payload's built-in upload storage?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. This plugin is a DAM picker: your media stays on Sirv and the field stores a small JSON reference. It does not change where Payload's native uploads are stored. A Sirv storage adapter for native uploads is a separate, future package."
+            }
+        }
+    ]
+}
+</script>
+<script src="https://scripts.sirv.com/sirvjs/v3/sirv.js"></script>
