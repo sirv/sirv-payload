@@ -45,17 +45,23 @@ function assetUrl(asset: DamAsset, alias: string): string {
   return buildUrl({ alias, path: asset.path });
 }
 
-/** Static thumbnail URL per type (null for view/model/file, which get a typed placeholder). */
+/**
+ * Static thumbnail URL per type (null only for generic files). If a thumbnail fails to load the
+ * card falls back to a typed placeholder (see AssetCard `onError`).
+ */
 function thumbUrl(asset: DamAsset, alias: string): string | null {
   if (!alias) return null;
   const input = { alias, path: asset.path };
   switch (asset.type) {
     case 'image':
       return buildUrl(input, { width: THUMB, height: THUMB, scale: 'fit', format: 'optimal' });
-    case 'video':
-      return buildUrl(input, { extras: { thumbnail: THUMB } });
     case 'spin':
       return buildUrl(input, { width: THUMB, height: THUMB, extras: { image: 24 } });
+    // Sirv renders a poster for videos, views and 3D models via ?thumbnail.
+    case 'video':
+    case 'view':
+    case 'model':
+      return buildUrl(input, { extras: { thumbnail: THUMB } });
     default:
       return null;
   }
