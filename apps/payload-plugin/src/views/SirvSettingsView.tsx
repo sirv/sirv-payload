@@ -1,7 +1,9 @@
 import { DefaultTemplate } from '@payloadcms/next/templates';
 import { Gutter } from '@payloadcms/ui';
+// Import via the package's own client subpath so the bundler keeps this a separate 'use client'
+// module (preserving the RSC server/client boundary) instead of inlining it into this server file.
+import { SirvSettingsClient } from '@sirv/payload-plugin/client';
 import type { AdminViewServerProps } from 'payload';
-import { SirvSettingsClient } from '../components/SirvSettingsClient.js';
 
 /**
  * Server component for the Sirv settings admin view. Wraps the interactive client form in

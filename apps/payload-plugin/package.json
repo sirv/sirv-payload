@@ -31,14 +31,15 @@
     "./styles.css": "./dist/styles.css"
   },
   "files": ["dist", "README.md", "LICENSE"],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "build": "tsc -p tsconfig.build.json && node scripts/copy-assets.mjs"
+    "build": "tsup && node scripts/copy-assets.mjs && node scripts/ensure-use-client.mjs",
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@sirv/core": "workspace:*",
-    "@sirv/sirv-client": "workspace:*",
-    "@sirv/url-builder": "workspace:*",
     "zod": "^3.23.8"
   },
   "peerDependencies": {
@@ -51,12 +52,16 @@
   "devDependencies": {
     "@payloadcms/next": "^3.37.0",
     "@payloadcms/ui": "^3.37.0",
+    "@sirv/core": "workspace:*",
+    "@sirv/sirv-client": "workspace:*",
+    "@sirv/url-builder": "workspace:*",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "monaco-editor": "0.52.2",
+    "next": "15.4.11",
     "payload": "^3.37.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.4.11",
-    "monaco-editor": "0.52.2"
+    "tsup": "^8.3.0"
   }
 }
