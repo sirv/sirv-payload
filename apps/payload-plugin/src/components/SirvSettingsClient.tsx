@@ -14,7 +14,7 @@ const SUPPORT_URL = 'https://sirv.com/help/support/';
  * server -> pick delivery domain -> disconnect) and a "Help & support" card. The secret is posted
  * once to the server and never read back; the browser only ever sees the non-secret status.
  */
-export function SirvSettingsView() {
+export function SirvSettingsClient() {
   const api = useMemo(() => createSirvAdminApi(), []);
   const [status, setStatus] = useState<SirvConnectionStatus | null>(null);
   const [clientId, setClientId] = useState('');
@@ -235,4 +235,4 @@ function ConnectedPanel({
   );
 }
 
-export default SirvSettingsView;
+export default SirvSettingsClient;

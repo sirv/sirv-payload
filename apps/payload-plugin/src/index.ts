@@ -32,7 +32,7 @@ export const sirvPlugin =
         views: {
           ...(config.admin?.components?.views ?? {}),
           sirvSettings: {
-            Component: '@sirv/payload-plugin/client#SirvSettingsView',
+            Component: '@sirv/payload-plugin/rsc#SirvSettingsView',
             path: SIRV_ADMIN_VIEW_PATH,
           },
         },

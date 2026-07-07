@@ -409,6 +409,25 @@ Note on the "API" tab the user asked about: that is Payload's built-in per-docum
 for that document. It appeared only because the global was nav-visible. The `clientSecret` was
 already excluded from it (`read:()=>false`); hiding the global removes the tab from view entirely.
 
+## Settings view chrome fix (2026-07-07) - the deferred refinement, now done
+
+Feedback: the settings view rendered full-screen, losing the admin sidebar/header/footer. This
+was the refinement flagged in M2 (custom views render as the whole page; you must wrap them in
+Payload's `DefaultTemplate` yourself). Implemented:
+- Split the view: the interactive form is now `SirvSettingsClient` (`'use client'`, under
+  `./client`); a new Server Component `views/SirvSettingsView.tsx` wraps it in
+  `DefaultTemplate` (from `@payloadcms/next/templates`) + `Gutter`, mapping the required props
+  from `initPageResult` (`req`, `payload`, `permissions`, `locale`, `user`, `visibleEntities`).
+- Added a third package entry **`./rsc`** (server components, no `'use client'`) exporting
+  `SirvSettingsView`; the plugin now registers the view as `@sirv/payload-plugin/rsc#SirvSettingsView`.
+  This keeps the RSC/client split clean: `.` (server-safe config), `./client` (client bundle),
+  `./rsc` (server components that use `@payloadcms/next`).
+- Added `@payloadcms/next` as a peer/dev dependency (needed for `DefaultTemplate`).
+- Verified live: `/admin/sirv` -> 200, compiles with the template, no errors. Import map
+  regenerates to `rsc#SirvSettingsView`.
+
+Removes the earlier M2 drift note about the standalone view; the view now has full admin chrome.
+
 ## Outstanding / for live verification by Igor
 
 - Token TTL: docs prose says 20 min (1200s); `openapi` allows `expiresIn` up to 604800. Confirm

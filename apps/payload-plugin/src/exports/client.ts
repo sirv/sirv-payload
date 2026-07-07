@@ -6,7 +6,7 @@
  * server-only imports - it is the boundary that `payload generate:importmap` pulls into the
  * admin browser bundle.
  */
-export { SirvSettingsView } from '../components/SirvSettingsView.js';
+export { SirvSettingsClient } from '../components/SirvSettingsClient.js';
 export { SirvNavLink } from '../components/SirvNavLink.js';
 export { SirvMediaField } from '../components/SirvMediaField.js';
 export { SirvMediaCell } from '../components/SirvMediaCell.js';

@@ -23,6 +23,11 @@
       "import": "./dist/exports/client.js",
       "default": "./dist/exports/client.js"
     },
+    "./rsc": {
+      "types": "./dist/exports/rsc.d.ts",
+      "import": "./dist/exports/rsc.js",
+      "default": "./dist/exports/rsc.js"
+    },
     "./styles.css": "./dist/styles.css"
   },
   "files": ["dist", "README.md", "LICENSE"],
@@ -37,12 +42,14 @@
     "zod": "^3.23.8"
   },
   "peerDependencies": {
+    "@payloadcms/next": "^3.37.0",
     "@payloadcms/ui": "^3.37.0",
     "payload": "^3.37.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
+    "@payloadcms/next": "^3.37.0",
     "@payloadcms/ui": "^3.37.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
