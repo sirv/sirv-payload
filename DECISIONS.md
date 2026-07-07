@@ -479,6 +479,19 @@ plugin's `SirvDamBrowser`. New/changed:
   `allowedTypes` (media fields stay `AssetType[]`).
 - Verified live: `/admin` 200, create route 200, no errors; workspace check + example tsc green.
 
+## DAM preview + infinite scroll (2026-07-07)
+
+- **Infinite scroll**: the grid now lives in a bounded, internally-scrolling container
+  (`.sirv-dam__scroll`, `.sirv-dam` capped at `78vh`) with an IntersectionObserver sentinel that
+  auto-loads the next page (folders and search) as it nears the bottom. The "Load more" button
+  is kept inside the sentinel as a keyboard / no-observer fallback.
+- **Item details** (ported from the Atlassian + Strapi previews): a metadata `<dl>`
+  (Name, Type, Dimensions, Duration, Size with `formatBytes`), two external links - **Open
+  original** (delivery URL) and **Open on my.sirv.com** (`manageUrl` file-manager deep link) -
+  and a bottom action row aligned with `justify-content: space-between` (Back on the left, "Use
+  this asset" primary on the right).
+- Verified live: `/admin` 200, create 200, no errors; workspace check + build green.
+
 ## Outstanding / for live verification by Igor
 
 - Token TTL: docs prose says 20 min (1200s); `openapi` allows `expiresIn` up to 604800. Confirm

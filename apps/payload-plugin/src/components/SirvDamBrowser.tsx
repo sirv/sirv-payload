@@ -11,11 +11,25 @@ import {
 } from '@sirv/core';
 import type { SirvClient } from '@sirv/sirv-client';
 import { buildUrl } from '@sirv/url-builder';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FolderIcon, HomeIcon } from './dam/icons.js';
 import { loadSirvJs, startSirv } from './dam/sirvjs.js';
 
 const THUMB = 200;
+
+/** Human-readable byte size. */
+function formatBytes(bytes: number): string {
+  if (!bytes || bytes <= 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const exp = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  return `${(bytes / 1024 ** exp).toFixed(exp === 0 ? 0 : 1)} ${units[exp]}`;
+}
+
+/** Deep link into the my.sirv.com file manager, focused on the asset (matches the other plugins). */
+function manageUrl(asset: DamAsset): string {
+  const dir = asset.path.slice(0, asset.path.lastIndexOf('/')) || '/';
+  return `https://my.sirv.com/#/browse${dir}?preview=${encodeURIComponent(asset.path)}`;
+}
 
 const TYPE_DISPLAY: Record<BrowseType, string> = {
   image: 'Image',
@@ -171,19 +185,42 @@ function Preview({
         )}
       </div>
 
-      <div>
-        <strong>{asset.name}</strong>
-        <p className="sirv-muted">
-          {TYPE_DISPLAY[asset.type]}
-          {asset.width && asset.height ? ` - ${asset.width}x${asset.height}` : ''}
-        </p>
+      <dl className="sirv-preview__meta">
+        <dt>Name</dt>
+        <dd title={asset.path}>{asset.name}</dd>
+        <dt>Type</dt>
+        <dd>{TYPE_DISPLAY[asset.type]}</dd>
+        {asset.width && asset.height ? (
+          <>
+            <dt>Dimensions</dt>
+            <dd>
+              {asset.width} x {asset.height}
+            </dd>
+          </>
+        ) : null}
+        {asset.durationSec ? (
+          <>
+            <dt>Duration</dt>
+            <dd>{asset.durationSec}s</dd>
+          </>
+        ) : null}
+        <dt>Size</dt>
+        <dd>{formatBytes(asset.bytes)}</dd>
+      </dl>
+
+      <div className="sirv-links">
+        <a href={url} target="_blank" rel="noopener noreferrer">
+          Open original
+        </a>
+        <a href={manageUrl(asset)} target="_blank" rel="noopener noreferrer">
+          Open on my.sirv.com
+        </a>
       </div>
 
       <div className="sirv-preview__actions">
         <button type="button" className="sirv-btn" onClick={onBack}>
-          Back
+          &larr; Back
         </button>
-        <span style={{ flex: 1 }} />
         <button
           type="button"
           className="sirv-btn sirv-btn--primary"
@@ -252,6 +289,25 @@ export function SirvDamBrowser({
   const error = searching ? searchState.error : folderState.error;
   const empty = folders.length === 0 && assets.length === 0;
 
+  const hasMore = searching ? searchState.hasMore : folderState.hasMore;
+  const loadMore = searching ? searchState.loadMore : folderState.loadMore;
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // Infinite scroll: auto-load the next page when the sentinel nears the bottom of the scroll area.
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasMore || loading) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) loadMore();
+      },
+      { root: scrollRef.current, rootMargin: '250px' },
+    );
+    io.observe(sentinel);
+    return () => io.disconnect();
+  }, [hasMore, loading, loadMore]);
+
   const navigate = (next: string) => {
     setTerm('');
     setPreview(null);
@@ -308,38 +364,43 @@ export function SirvDamBrowser({
         </p>
       ) : null}
 
-      <div className="sirv-grid__items">
-        {folders.map((f) => (
-          <FolderCard key={f.path} folder={f} onOpen={() => navigate(f.path)} />
-        ))}
-        {assets.map((a) => (
-          <AssetCard
-            key={a.path}
-            asset={a}
-            alias={alias}
-            selected={multiple ? isSelected(a) : undefined}
-            onClick={() => onCardClick(a)}
-          />
-        ))}
+      <div className="sirv-dam__scroll" ref={scrollRef}>
+        <div className="sirv-grid__items">
+          {folders.map((f) => (
+            <FolderCard key={f.path} folder={f} onOpen={() => navigate(f.path)} />
+          ))}
+          {assets.map((a) => (
+            <AssetCard
+              key={a.path}
+              asset={a}
+              alias={alias}
+              selected={multiple ? isSelected(a) : undefined}
+              onClick={() => onCardClick(a)}
+            />
+          ))}
+        </div>
+
+        {loading ? <p className="sirv-grid__loading">Loading...</p> : null}
+        {empty && !loading ? (
+          <p className="sirv-grid__empty">
+            {searching ? 'No matching assets.' : 'This folder is empty.'}
+          </p>
+        ) : null}
+
+        {/* Infinite-scroll sentinel; the button is a keyboard/no-observer fallback. */}
+        {hasMore ? (
+          <div ref={sentinelRef} className="sirv-grid__sentinel">
+            <button
+              type="button"
+              className="sirv-btn sirv-grid__more"
+              disabled={loading}
+              onClick={loadMore}
+            >
+              {loading ? 'Loading...' : 'Load more'}
+            </button>
+          </div>
+        ) : null}
       </div>
-
-      {loading ? <p className="sirv-grid__loading">Loading...</p> : null}
-      {empty && !loading ? (
-        <p className="sirv-grid__empty">
-          {searching ? 'No matching assets.' : 'This folder is empty.'}
-        </p>
-      ) : null}
-
-      {(searching ? searchState.hasMore : folderState.hasMore) ? (
-        <button
-          type="button"
-          className="sirv-btn sirv-grid__more"
-          disabled={loading}
-          onClick={searching ? searchState.loadMore : folderState.loadMore}
-        >
-          Load more
-        </button>
-      ) : null}
 
       {multiple ? (
         <div className="sirv-multibar">
