@@ -58,3 +58,19 @@ export type { SirvPluginOptions, SirvConnectionStatus } from './types.js';
 export { SIRV_SETTINGS_SLUG, SIRV_API_ROUTES } from './types.js';
 export { sirvSettingsGlobal } from './globals/sirv-settings.js';
 export { sirvEndpoints } from './endpoints/index.js';
+
+// Field factories (server-safe config; components resolved via the import map).
+export {
+  sirvMediaField,
+  sirvMediaListField,
+  sirvAssetUrlField,
+  type SirvFieldOptions,
+} from './fields/index.js';
+export {
+  SirvMediaValueSchema,
+  SirvMediaListValueSchema,
+  type SirvMediaValue,
+  type SirvMediaListValue,
+  damAssetToMediaValue,
+  enrichMediaValue,
+} from './fields/value.js';

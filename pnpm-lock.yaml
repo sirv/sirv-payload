@@ -50,6 +50,9 @@ importers:
       '@sirv/url-builder':
         specifier: workspace:*
         version: link:../../packages/url-builder
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
     devDependencies:
       '@payloadcms/ui':
         specifier: ^3.37.0

@@ -235,6 +235,47 @@ isolates them per-package) so it matches the Payload admin host while root packa
 in devtools that no browser response ever contains the secret. The design guarantees it (field
 `read:()=>false` + status/token responses omit it); needs a live confirmation run.
 
+## Milestone 3 (sirvMediaField) - DONE (2026-07-07)
+
+- **Value contract nailed down.** Verified the frozen flat shape against the published
+  `@sirv/react` `fromSanityMedia` (`../sirv-react/src/from-sanity.ts`) and a shipped sibling
+  (`../contentful/.../value.ts`). NOTE: `@sirv/core`'s own `SirvFieldValue` is a DIFFERENT nested
+  `sirv.image` shape (Sanity-internal) - NOT what we store. We store the flat `sirvMedia`
+  (`_type:'sirvMedia'`, `mediaType`, `sirvPath`, `sirvAlias`, `originalUrl`, `bytes`, optional
+  dims/format/alt/caption/transformations/playback). Extended the Contentful mapper's enum to 5
+  types (added `model`).
+- **`src/fields/value.ts`**: `SirvMediaValueSchema` (+`SirvMediaListValueSchema`),
+  `damAssetToMediaValue(asset, alias)` (URL via `@sirv/url-builder` `buildUrl`, percent-encoded
+  paths), `enrichMediaValue` + `fetchSirvInfo` (auto-fill alt from `?info` title, caption from
+  description, image/video only, never overwrites edited values, never throws).
+- **`src/fields/index.ts`**: `sirvMediaField` (+`sirvMediaListField`/`sirvAssetUrlField` stubs
+  wired for M4) factories returning server-safe `json`/`text` configs. Components referenced by
+  path string (`@sirv/payload-plugin/client#SirvMediaField` + `#SirvMediaCell`); per-field
+  `allowedTypes` stashed in `admin.custom.sirvAllowedTypes` and read by the client component.
+  Returns cast `as Field` because `Field` is a big union that fights a literal component string.
+- **Client** (`'use client'`, all under `./client`): `useSirvClient` hook + `runtime.ts`
+  singletons (one shared `SirvClient` + token store + cached status across all fields);
+  `SirvDamBrowser` wraps the headless `@sirv/core` `DamBrowser` and maps the picked `DamAsset`
+  into an enriched `sirvMedia` value; `SirvModal` (self-contained fixed-overlay modal - no
+  `@faceless-ui/modal` dependency, avoids the React-copy coupling; Escape + backdrop close);
+  `SirvMediaField` (pick/replace/remove, thumbnail preview, inline alt/caption for image/video,
+  respects `allowedTypes` + `readOnly`); `SirvMediaCell` (list-view thumbnail/badge). `thumb.ts`
+  builds preview URLs (image via resize, video via `?thumbnail=`, spin/view/model -> badge).
+- **Styles**: authored the full DAM/modal/asset-card/cell CSS for the ACTUAL vendored-core class
+  names (`sirv-grid__items`, `sirv-thumb__frame`, `sirv-preview__media`, ... - the Contentful
+  stylesheet predates these), using Payload admin CSS variables for light/dark.
+- **Tests**: 6 value-mapper assertions (each media type, unicode path encoding, file rejection,
+  schema round-trip). Total suite 71 passed, 5 live-skipped.
+- Verified green: `pnpm check` exit 0; plugin `build` emits the new client components with
+  `'use client'` preserved.
+
+**Decisions taken here**
+- Own modal instead of `@payloadcms/ui`'s `Modal`/`@faceless-ui`: fewer moving parts, no
+  dependency on the admin ModalProvider container, sidesteps the React 18 (faceless) vs 19
+  (payload) split. Revisit if we want the exact Payload modal look.
+- `allowedTypes` travels via `admin.custom` (client-readable) rather than component `clientProps`
+  (not expressible through a bare path-string reference).
+
 ## Outstanding / for live verification by Igor
 
 - Token TTL: docs prose says 20 min (1200s); `openapi` allows `expiresIn` up to 604800. Confirm
