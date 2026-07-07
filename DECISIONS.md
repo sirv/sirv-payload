@@ -428,6 +428,32 @@ Payload's `DefaultTemplate` yourself). Implemented:
 
 Removes the earlier M2 drift note about the standalone view; the view now has full admin chrome.
 
+## Duplicate @payloadcms/ui crash (2026-07-07) - monorepo dedupe
+
+Symptom: opening a document with Sirv fields crashed client-side with "Cannot destructure
+property 'config' of ... as it is undefined" at `useField`. Cause: the monorepo had FIVE
+`@payloadcms/ui@3.85.2` store instances (differing peer contexts). The plugin resolved the copy
+built against `next@16.2.10` / `monaco-editor@0.55.1`, while the admin app used the copy built
+against `next@15.4.11` / `monaco-editor@0.52.2`. Two physical modules -> two React contexts, so
+the plugin's `useConfig()`/`useField()` read an empty context. (The settings form never hit this
+because it uses no `@payloadcms/ui` hooks - only plain fetch - which is why only the fields
+crashed.)
+
+Fix attempts and the resolution:
+- A webpack `resolve.alias` to a single `@payloadcms/ui` dir was WRONG: aliasing an
+  exports-based package to a directory bypasses its `exports` map and broke subpath imports
+  (`@payloadcms/ui/shared` -> module not found). Reverted.
+- `pnpm.overrides` for `next`/`monaco-editor` did not help: the plugin has neither in its graph,
+  so pnpm resolves `@payloadcms/ui`'s peers to the highest available regardless.
+- WORKING FIX: pin `next@15.4.11` + `monaco-editor@0.52.2` in the PLUGIN's devDependencies so its
+  `@payloadcms/ui` peer context matches the example app's. Both now resolve the identical store
+  instance (`...monaco-editor@0.52.2_next@15.4.11..._25806bbec...`) -> one copy -> one context.
+  These devDeps are NOT published and NOT imported by plugin code; they only steer monorepo
+  resolution. A real standalone `npm install @sirv/payload-plugin` has a single `@payloadcms/ui`
+  (the consumer's) and never hits this.
+- Verified: plugin and example resolve the same `@payloadcms/ui` hash; server boots, `/admin`
+  200, create route compiles with no destructure/module errors.
+
 ## Outstanding / for live verification by Igor
 
 - Token TTL: docs prose says 20 min (1200s); `openapi` allows `expiresIn` up to 604800. Confirm

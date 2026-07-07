@@ -16,6 +16,7 @@
     "@payloadcms/db-sqlite": "3.85.2",
     "@payloadcms/next": "3.85.2",
     "@payloadcms/richtext-lexical": "3.85.2",
+    "@payloadcms/ui": "3.85.2",
     "@sirv/payload-plugin": "workspace:*",
     "@sirv/react": "^0.2.0",
     "cross-env": "^7.0.3",
