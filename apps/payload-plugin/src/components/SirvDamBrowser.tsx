@@ -313,9 +313,12 @@ export function SirvDamBrowser({
     setOpBusy(true);
     setOpError(null);
     try {
-      await client.createFolder(joinPath(name.trim()));
+      const target = joinPath(name.trim());
+      await client.createFolder(target);
+      // Navigate into the freshly created folder (path change triggers a fresh listing).
       setTerm('');
-      folderState.reload();
+      setPreview(null);
+      setPath(target);
     } catch (e) {
       setOpError(e instanceof Error ? e.message : 'Failed to create folder');
     } finally {
