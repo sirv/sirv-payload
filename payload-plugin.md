@@ -162,6 +162,10 @@ Key decisions (made — don't relitigate without documenting in `DECISIONS.md`):
 2. **DAM browser** — folder tree, account-wide search, thumbnail grid, live preview (image /
    video / sirv.js spin, view, model), type-filter chips, generic files where relevant,
    multi-select (for the list field). Identical UX to the four shipped plugins.
+   > Delivered UI (full list in `docs/ui-enhancements.md`): two-row toolbar, folder icons,
+   > per-type thumbnails with fallback, item details (metadata + "Open original" / "Open on
+   > my.sirv.com" links), infinite scroll, single-vs-multi selection, create-folder + upload
+   > toolbar icons, X/Esc/backdrop close, and a `#579be8` accent.
 3. **Fields** — `sirvMediaField` (single), `sirvMediaListField` (gallery, multi-select,
    drag-reorder), `sirvAssetUrlField` (URL backed by the picker). `allowedTypes` restriction per
    field. Alt/caption auto-filled from Sirv `?info`, editable inline. List-view `Cell` renders a

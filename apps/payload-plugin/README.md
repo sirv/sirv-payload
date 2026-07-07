@@ -86,6 +86,26 @@ Payload field config, so you can drop them into any collection or global.
 `allowedTypes` restricts the DAM browser to a subset of
 `'image' | 'video' | 'spin' | 'view' | 'model'` (the URL field additionally allows `'file'`).
 
+## The DAM browser
+
+Each field opens a full media library:
+
+- **Browse** folders with a breadcrumb, or **search** the whole account; **type-filter chips**
+  narrow the results.
+- **Thumbnails** for every media type (images, video posters, 360-spin frames, viewer and 3D
+  posters), with folder icons and a live preview (sirv.js) for spins, views and models.
+- **Item details** show the asset's name, folder, dimensions and size, with "Open original" and
+  "Open on my.sirv.com" links.
+- **Infinite scroll** loads more results as you scroll.
+- **Single-select** (single fields) uses a preview-and-confirm step; the **gallery** field is
+  multi-select with a confirm bar and drag-to-reorder.
+- **Create a folder** or **upload files** straight into the current folder from the toolbar icons.
+- Close with the X icon, the `Esc` key, or a backdrop click.
+
+When an image or video is picked, its **alt text** and **caption** are auto-filled from the
+asset's Sirv metadata and remain editable in the field. Restyle the accent color and chrome by
+overriding the `sirv-*` classes in your own CSS after importing `@sirv/payload-plugin/styles.css`.
+
 ## Stored value shape
 
 `sirvMedia` fields store a flat, CMS-neutral JSON value (the same shape used by the Sirv Sanity,
