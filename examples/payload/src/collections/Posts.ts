@@ -36,7 +36,7 @@ export const Posts: CollectionConfig = {
     sirvMediaField({ name: 'view', label: 'Sirv Media Viewer', allowedTypes: ['view'] }),
     sirvMediaField({ name: 'model', label: '3D model', allowedTypes: ['model'] }),
 
-    sirvMediaListField({ name: 'gallery', label: 'Gallery (any media)' }),
+    sirvMediaListField({ name: 'gallery', label: 'Multiple selection (any media)' }),
     sirvMediaListField({
       name: 'imageGallery',
       label: 'Image/video gallery',

@@ -63,3 +63,21 @@ export async function getFileInfo(req: AuthedRequest, filename: string): Promise
   const raw = await req('/files/stat', { query: { filename } });
   return FileStatSchema.parse(raw);
 }
+
+/** Creates a folder (POST /v2/files/mkdir). `dirname` is the absolute path of the new folder. */
+export async function createFolder(req: AuthedRequest, dirname: string): Promise<void> {
+  await req('/files/mkdir', { method: 'POST', query: { dirname } });
+}
+
+/** Uploads a file (POST /v2/files/upload). `filename` is the absolute destination path. */
+export async function uploadFile(
+  req: AuthedRequest,
+  params: { filename: string; data: Uint8Array; contentType?: string },
+): Promise<void> {
+  await req('/files/upload', {
+    method: 'POST',
+    query: { filename: params.filename },
+    rawBody: params.data,
+    contentType: params.contentType ?? 'application/octet-stream',
+  });
+}

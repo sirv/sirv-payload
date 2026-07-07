@@ -12,7 +12,7 @@ import {
 import type { SirvClient } from '@sirv/sirv-client';
 import { buildUrl } from '@sirv/url-builder';
 import { useEffect, useRef, useState } from 'react';
-import { FolderIcon, HomeIcon } from './dam/icons.js';
+import { FolderIcon, HomeIcon, NewFolderIcon, UploadIcon } from './dam/icons.js';
 import { loadSirvJs, startSirv } from './dam/sirvjs.js';
 
 const THUMB = 200;
@@ -299,6 +299,50 @@ export function SirvDamBrowser({
   const loadMore = searching ? searchState.loadMore : folderState.loadMore;
   const scrollRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [opBusy, setOpBusy] = useState(false);
+  const [opError, setOpError] = useState<string | null>(null);
+
+  const joinPath = (name: string) => (path === '/' ? `/${name}` : `${path}/${name}`);
+
+  const onNewFolder = async () => {
+    const name = window.prompt('New folder name');
+    if (!name?.trim()) return;
+    setOpBusy(true);
+    setOpError(null);
+    try {
+      await client.createFolder(joinPath(name.trim()));
+      setTerm('');
+      folderState.reload();
+    } catch (e) {
+      setOpError(e instanceof Error ? e.message : 'Failed to create folder');
+    } finally {
+      setOpBusy(false);
+    }
+  };
+
+  const onUploadFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setOpBusy(true);
+    setOpError(null);
+    try {
+      for (const file of Array.from(files)) {
+        const data = new Uint8Array(await file.arrayBuffer());
+        await client.uploadFile({
+          filename: joinPath(file.name),
+          data,
+          contentType: file.type || undefined,
+        });
+      }
+      setTerm('');
+      folderState.reload();
+    } catch (e) {
+      setOpError(e instanceof Error ? e.message : 'Upload failed');
+    } finally {
+      setOpBusy(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   // Infinite scroll: auto-load the next page when the sentinel nears the bottom of the scroll area.
   useEffect(() => {
@@ -336,12 +380,41 @@ export function SirvDamBrowser({
   return (
     <div className="sirv-dam">
       <div className="sirv-dam__toolbar">
-        <input
-          className="sirv-input sirv-dam__search"
-          placeholder="Search this account..."
-          value={term}
-          onChange={(e) => setTerm(e.target.value)}
-        />
+        <div className="sirv-dam__searchrow">
+          <input
+            className="sirv-input sirv-dam__search"
+            placeholder="Search this account..."
+            value={term}
+            onChange={(e) => setTerm(e.target.value)}
+          />
+          <button
+            type="button"
+            className="sirv-icon-btn"
+            onClick={onNewFolder}
+            disabled={opBusy}
+            aria-label="New folder"
+            title="New folder"
+          >
+            <NewFolderIcon />
+          </button>
+          <button
+            type="button"
+            className="sirv-icon-btn"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={opBusy}
+            aria-label="Upload file"
+            title="Upload file"
+          >
+            <UploadIcon />
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            hidden
+            onChange={(e) => void onUploadFiles(e.target.files)}
+          />
+        </div>
         {typeFilter.visible ? (
           <div className="sirv-type-filter">
             {typeFilter.allowed.map((t) => {
@@ -369,6 +442,12 @@ export function SirvDamBrowser({
           {error}
         </p>
       ) : null}
+      {opError ? (
+        <p className="sirv-dam__error" role="alert">
+          {opError}
+        </p>
+      ) : null}
+      {opBusy ? <p className="sirv-muted">Working...</p> : null}
 
       <div className="sirv-dam__scroll" ref={scrollRef}>
         <div className="sirv-grid__items">

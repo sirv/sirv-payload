@@ -26,7 +26,7 @@ export function mockFetch(impl: (call: MockCall, callIndex: number) => MockRespo
       url,
       method: init?.method ?? 'GET',
       headers: init?.headers ?? {},
-      body: init?.body ? JSON.parse(init.body) : undefined,
+      body: typeof init?.body === 'string' ? JSON.parse(init.body) : init?.body,
     };
     const index = calls.length;
     calls.push(call);

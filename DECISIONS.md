@@ -492,6 +492,30 @@ plugin's `SirvDamBrowser`. New/changed:
   this asset" primary on the right).
 - Verified live: `/admin` 200, create 200, no errors; workspace check + build green.
 
+## DAM: create folder + upload file (2026-07-07)
+
+Ported the folder/upload capability from the Atlassian plugin (two icon buttons next to the
+search field).
+- **Vendored `sirv-client` extended** (still zero Payload imports): `http.ts` gained `rawBody` +
+  `contentType` on `RequestInit`, a widened `FetchLike` body (`string | Uint8Array`), and
+  empty/non-JSON success handling (mkdir/upload return empty 200s). `dam.ts` gained
+  `createFolder` (`POST /v2/files/mkdir`) and `uploadFile` (`POST /v2/files/upload`, raw body);
+  both wired into the `SirvClient` interface + `createSirvClient` and exported. This is a clean
+  superset port from Atlassian, not a divergence.
+- **UI**: `SirvDamBrowser` toolbar now has a search row with a **New folder** and an **Upload**
+  icon button (hidden multi-file `<input type=file>`). New folder prompts for a name and calls
+  `client.createFolder(path/name)`; upload reads each file to a `Uint8Array` and calls
+  `client.uploadFile({ filename, data, contentType })`. Both operate on the current folder,
+  surface a "Working..." / error state, then `folderState.reload()` to show the result.
+- **Test-stub updates** for the new text-based response parsing: the vendored + core `mockFetch`
+  guard `JSON.parse` on string bodies only; the realm test and server bearer-cache test stubs
+  return the JSON via `text()`. Core `makeMockClient` gained `createFolder`/`uploadFile`. All
+  green (74 passed, 8 live-skipped).
+- **Example**: renamed the `gallery` field label to "Multiple selection (any media)".
+- **NEEDS LIVE VERIFICATION**: mkdir/upload from the admin browser hit `api.sirv.com` directly
+  with the bearer; confirm CORS allows the POST (preflight) on a live account. The other DAM
+  calls already work cross-origin, so this is expected to as well.
+
 ## Outstanding / for live verification by Igor
 
 - Token TTL: docs prose says 20 min (1200s); `openapi` allows `expiresIn` up to 604800. Confirm

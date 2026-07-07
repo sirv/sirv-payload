@@ -7,7 +7,7 @@ export type FetchLike = (
   init?: {
     method?: string;
     headers?: Record<string, string>;
-    body?: string;
+    body?: string | Uint8Array;
   },
 ) => Promise<{
   ok: boolean;
@@ -27,6 +27,10 @@ export interface RequestInit {
   token?: string;
   /** JSON body; serialized automatically. */
   body?: unknown;
+  /** Raw binary body (e.g. a file upload); sent as-is, bypassing JSON serialization. */
+  rawBody?: Uint8Array;
+  /** Content-Type for a `rawBody` request (defaults to application/octet-stream). */
+  contentType?: string;
   /** Query params; undefined/null values are dropped. */
   query?: Record<string, string | number | undefined | null>;
 }
@@ -52,29 +56,45 @@ export async function request<T>(
 ): Promise<T> {
   const headers: Record<string, string> = {};
   if (init.token) headers.Authorization = `Bearer ${init.token}`;
-  if (init.body !== undefined) headers['Content-Type'] = 'application/json';
+
+  let body: string | Uint8Array | undefined;
+  if (init.rawBody !== undefined) {
+    body = init.rawBody;
+    headers['Content-Type'] = init.contentType ?? 'application/octet-stream';
+  } else if (init.body !== undefined) {
+    body = JSON.stringify(init.body);
+    headers['Content-Type'] = 'application/json';
+  }
 
   const res = await ctx.fetchImpl(buildUrl(ctx.baseUrl, path, init.query), {
     method: init.method ?? 'GET',
     headers,
-    body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
+    body,
   });
 
   if (!res.ok) {
-    let body: unknown;
+    let errBody: unknown;
     let message = `Sirv API ${res.status}`;
     try {
-      body = await res.json();
-      if (body && typeof body === 'object' && 'message' in body) {
-        message = `Sirv API ${res.status}: ${String((body as { message: unknown }).message)}`;
+      errBody = await res.json();
+      if (errBody && typeof errBody === 'object' && 'message' in errBody) {
+        message = `Sirv API ${res.status}: ${String((errBody as { message: unknown }).message)}`;
       }
     } catch {
       // non-JSON error body; keep the generic message
     }
-    throw new SirvApiError(message, res.status, body);
+    throw new SirvApiError(message, res.status, errBody);
   }
 
-  return (await res.json()) as T;
+  // Some endpoints (mkdir, upload) return 200 with an empty or non-JSON body. Read as text and
+  // only parse when there's content, so those calls resolve to undefined rather than throw.
+  const text = await res.text();
+  if (!text) return undefined as T;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return undefined as T;
+  }
 }
 
 export function resolveContext(opts?: {

@@ -1,7 +1,14 @@
 export { createSirvClient, type SirvClient, type SirvClientOptions } from './client.js';
 
 // DAM + account methods (also usable standalone with an AuthedRequest)
-export { listFolder, searchFiles, getFileInfo, type SearchParams } from './dam.js';
+export {
+  listFolder,
+  searchFiles,
+  getFileInfo,
+  createFolder,
+  uploadFile,
+  type SearchParams,
+} from './dam.js';
 export {
   getAccountInfo,
   getUsage,

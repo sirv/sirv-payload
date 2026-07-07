@@ -6,7 +6,7 @@ function stubTokenFetch(token: string, expiresIn: number) {
     ok: true,
     status: 200,
     json: async () => ({ token, expiresIn, scope: [] }),
-    text: async () => '',
+    text: async () => JSON.stringify({ token, expiresIn, scope: [] }),
   }));
   vi.stubGlobal('fetch', fn);
   return fn;

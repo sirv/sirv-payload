@@ -1,5 +1,13 @@
 import { getAccountInfo, getBillingPlan, getUsage } from './account.js';
-import { type SearchParams, getFileInfo, listFolder, searchFiles, searchScroll } from './dam.js';
+import {
+  type SearchParams,
+  createFolder,
+  getFileInfo,
+  listFolder,
+  searchFiles,
+  searchScroll,
+  uploadFile,
+} from './dam.js';
 import { SirvApiError } from './errors.js';
 import { type AuthedRequest, type FetchLike, request, resolveContext } from './http.js';
 import {
@@ -38,6 +46,10 @@ export interface SirvClient {
   /** Next batch of a scrolling search (see searchFiles `scroll`). */
   searchScroll(scrollId: string): Promise<SearchResponse>;
   getFileInfo(filename: string): Promise<FileStat>;
+  /** Creates a folder at the given absolute path. */
+  createFolder(dirname: string): Promise<void>;
+  /** Uploads a file to the given absolute path. */
+  uploadFile(params: { filename: string; data: Uint8Array; contentType?: string }): Promise<void>;
   getAccountInfo(): Promise<AccountInfo>;
   getUsage(): Promise<StorageUsage>;
   getBillingPlan(): Promise<BillingPlan>;
@@ -71,6 +83,8 @@ export function createSirvClient(options: SirvClientOptions): SirvClient {
     searchFiles: (params) => searchFiles(authedRequest, params),
     searchScroll: (scrollId) => searchScroll(authedRequest, scrollId),
     getFileInfo: (filename) => getFileInfo(authedRequest, filename),
+    createFolder: (dirname) => createFolder(authedRequest, dirname),
+    uploadFile: (params) => uploadFile(authedRequest, params),
     getAccountInfo: () => getAccountInfo(authedRequest),
     getUsage: () => getUsage(authedRequest),
     getBillingPlan: () => getBillingPlan(authedRequest),

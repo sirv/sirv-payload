@@ -95,7 +95,7 @@ describe('createSirvClient', () => {
         ok: true,
         status: 200,
         json: async () => ({ alias: 'demo' }),
-        text: async () => '{}',
+        text: async () => JSON.stringify({ alias: 'demo' }),
       });
     } as unknown as typeof fetch;
     try {

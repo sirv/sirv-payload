@@ -13,8 +13,11 @@ import type { PayloadTokenStore } from './PayloadTokenStore.js';
 export function createBrowserSirvClient(store: PayloadTokenStore, baseUrl?: string): SirvClient {
   const fetchWithBearer: FetchLike = async (input, init) => {
     const token = await store.getToken();
-    const withAuth = (bearer: string) => ({
+    // Cast to the DOM RequestInit: FetchLike's body type (string | Uint8Array, for uploads) is a
+    // superset that TS does not auto-narrow to BodyInit.
+    const withAuth = (bearer: string): RequestInit => ({
       ...init,
+      body: init?.body as BodyInit | undefined,
       headers: { ...(init?.headers ?? {}), Authorization: `Bearer ${bearer}` },
     });
 

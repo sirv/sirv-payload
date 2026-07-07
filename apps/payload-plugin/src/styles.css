@@ -774,3 +774,38 @@
 .sirv-preview__actions {
   justify-content: space-between;
 }
+
+/* ---- DAM toolbar: search row with action icons ---- */
+.sirv-dam__searchrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sirv-dam__searchrow .sirv-dam__search {
+  flex: 1;
+}
+
+.sirv-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--theme-elevation-150, #d9d9d9);
+  border-radius: var(--style-radius-s, 4px);
+  background: var(--theme-elevation-0, #fff);
+  color: var(--theme-elevation-700, #333);
+  cursor: pointer;
+}
+
+.sirv-icon-btn:hover {
+  border-color: var(--theme-elevation-300, #b9c2cc);
+  background: var(--theme-elevation-50, #f5f5f5);
+}
+
+.sirv-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

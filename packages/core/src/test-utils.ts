@@ -21,7 +21,7 @@ export function mockFetch(impl: (call: MockCall) => MockResponse): {
     const call: MockCall = {
       url,
       method: init?.method ?? 'GET',
-      body: init?.body ? JSON.parse(init.body) : undefined,
+      body: typeof init?.body === 'string' ? JSON.parse(init.body) : init?.body,
     };
     calls.push(call);
     const { status = 200, body = {} } = impl(call);
@@ -44,6 +44,8 @@ export function makeMockClient(overrides: Partial<SirvClient> = {}): SirvClient 
     searchFiles: async () => ({ hits: [], total: 0, _relation: 'eq' }),
     searchScroll: async () => ({ hits: [], total: 0, _relation: 'eq' }),
     getFileInfo: async () => ({ size: 0, isDirectory: false }),
+    createFolder: async () => undefined,
+    uploadFile: async () => undefined,
     getAccountInfo: async () => ({ alias: 'demo' }),
     getUsage: async () => ({ plan: 0, used: 0, files: 0 }),
     getBillingPlan: async () => ({ id: 'plan' }),
