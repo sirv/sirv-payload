@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { type SirvMediaValue, damAssetToMediaValue, enrichMediaValue } from '../fields/value.js';
 import { SirvBrowserPane } from './SirvBrowserPane.js';
 import { SirvModal } from './SirvModal.js';
+import { ReplaceIcon, TrashIcon } from './dam/icons.js';
 import { mediaTypeLabel, thumbUrl } from './thumb.js';
 
 interface SirvFieldProps {
@@ -84,10 +85,10 @@ export function SirvMediaField(props: SirvFieldProps) {
             {!readOnly ? (
               <div className="sirv-row">
                 <button type="button" className="sirv-btn" onClick={() => setOpen(true)}>
-                  Replace
+                  <ReplaceIcon /> Replace
                 </button>
                 <button type="button" className="sirv-btn" onClick={() => setValue(null)}>
-                  Remove
+                  <TrashIcon /> Remove
                 </button>
               </div>
             ) : null}

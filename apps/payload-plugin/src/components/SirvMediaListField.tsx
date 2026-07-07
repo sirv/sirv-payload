@@ -6,6 +6,7 @@ import { type SirvMediaValue, damAssetToMediaValue, enrichMediaValue } from '../
 import { SirvBrowserPane } from './SirvBrowserPane.js';
 import { readAllowedTypes } from './SirvMediaField.js';
 import { SirvModal } from './SirvModal.js';
+import { CloseIcon } from './dam/icons.js';
 import { mediaTypeLabel, thumbUrl } from './thumb.js';
 
 interface SirvListFieldProps {
@@ -78,9 +79,10 @@ export function SirvMediaListField(props: SirvListFieldProps) {
                     type="button"
                     className="sirv-gallery__remove"
                     aria-label="Remove"
+                    title="Remove"
                     onClick={() => removeAt(index)}
                   >
-                    x
+                    <CloseIcon />
                   </button>
                 ) : null}
               </li>

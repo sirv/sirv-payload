@@ -50,7 +50,7 @@
 
 .sirv-hint a,
 .sirv-links a {
-  color: var(--theme-success-600, #0a7c3b);
+  color: #579be8;
   text-decoration: none;
 }
 
@@ -112,11 +112,14 @@
 
 .sirv-input:focus {
   outline: none;
-  border-color: var(--theme-success-500, #0a7c3b);
+  border-color: #579be8;
 }
 
 .sirv-btn {
   align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 0.6em 1.2em;
   border: 1px solid var(--theme-elevation-150, #d9d9d9);
   border-radius: var(--style-radius-s, 4px);
@@ -126,14 +129,18 @@
   cursor: pointer;
 }
 
+.sirv-btn svg {
+  flex: 0 0 auto;
+}
+
 .sirv-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
 .sirv-btn--primary {
-  background: var(--theme-success-500, #0a7c3b);
-  border-color: var(--theme-success-500, #0a7c3b);
+  background: #579be8;
+  border-color: #579be8;
   color: #fff;
 }
 
@@ -278,8 +285,8 @@
 }
 
 .sirv-type-filter__chip--active {
-  background: var(--theme-success-500, #0a7c3b);
-  border-color: var(--theme-success-500, #0a7c3b);
+  background: #579be8;
+  border-color: #579be8;
   color: #fff;
 }
 
@@ -295,7 +302,7 @@
 .sirv-breadcrumb__link {
   background: none;
   border: none;
-  color: var(--theme-success-600, #0a7c3b);
+  color: #579be8;
   cursor: pointer;
   padding: 2px 4px;
   font-size: 13px;
@@ -338,8 +345,8 @@
 }
 
 .sirv-thumb--selected {
-  border-color: var(--theme-success-500, #0a7c3b);
-  outline: 2px solid var(--theme-success-500, #0a7c3b);
+  border-color: #579be8;
+  outline: 2px solid #579be8;
   outline-offset: -2px;
 }
 
@@ -361,7 +368,7 @@
 }
 
 .sirv-grid__folder-icon {
-  color: var(--theme-elevation-400, #5b9bd5);
+  color: #579be8;
   font-size: 2.4rem;
 }
 
@@ -377,7 +384,7 @@
   position: absolute;
   top: 6px;
   right: 6px;
-  background: var(--theme-success-500, #0a7c3b);
+  background: #579be8;
   color: #fff;
   border-radius: 999px;
   font-size: 11px;
@@ -527,14 +534,21 @@
   position: absolute;
   top: 4px;
   right: 4px;
-  width: 20px;
-  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
   border: none;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.6);
   color: #fff;
   cursor: pointer;
-  line-height: 1;
+}
+
+.sirv-gallery__remove svg {
+  width: 13px;
+  height: 13px;
 }
 
 /* ---- List-view cell ---- */
@@ -605,8 +619,8 @@
 }
 
 .sirv-dam-card--selected {
-  border-color: var(--theme-success-500, #0a7c3b);
-  outline: 2px solid var(--theme-success-500, #0a7c3b);
+  border-color: #579be8;
+  outline: 2px solid #579be8;
   outline-offset: -2px;
 }
 
@@ -628,7 +642,7 @@
 
 /* Folder glyph color (the SVG fills with currentColor). */
 .sirv-dam-card__folder-icon {
-  color: var(--theme-elevation-400, #5b9bd5);
+  color: #579be8;
   background: transparent;
 }
 
@@ -661,7 +675,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--theme-success-500, #0a7c3b);
+  background: #579be8;
   color: #fff;
   font-size: 12px;
   z-index: 1;

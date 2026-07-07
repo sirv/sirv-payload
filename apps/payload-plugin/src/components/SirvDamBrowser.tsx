@@ -194,6 +194,8 @@ function Preview({
       <dl className="sirv-preview__meta">
         <dt>Name</dt>
         <dd title={asset.path}>{asset.name}</dd>
+        <dt>Folder</dt>
+        <dd>{asset.path.slice(0, asset.path.lastIndexOf('/')) || '/'}</dd>
         <dt>Type</dt>
         <dd>{TYPE_DISPLAY[asset.type]}</dd>
         {asset.width && asset.height ? (
